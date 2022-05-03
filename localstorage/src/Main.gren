@@ -1,0 +1,74 @@
+module Main exposing (main)
+
+import Browser
+import Html exposing (Html)
+import Html.Events as Events
+import Html.Attributes as Attributes
+
+
+-- MAIN
+
+
+main =
+  Browser.sandbox { init = init, update = update, view = view }
+
+
+
+-- MODEL
+
+
+type alias Model =
+    { inputKey : String
+    , inputValue : String
+    }
+
+
+init : Model
+init =
+  { inputKey = ""
+  , inputValue = ""
+  }
+
+
+-- UPDATE
+
+
+type Msg
+  = SetKey String
+  | SetValue String
+  | SaveToLocalStorage
+
+
+update : Msg -> Model -> Model
+update msg model =
+  case msg of
+    SetKey key ->
+        { model | inputKey = key }
+
+    SetValue value ->
+        { model | inputValue = value }
+
+    SaveToLocalStorage ->
+      model
+
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    Html.div []
+        [ Html.input
+            [ Attributes.placeholder "Key:"
+            , Attributes.value model.inputKey
+            , Events.onInput SetKey
+            ]
+            []
+        , Html.input
+            [ Attributes.placeholder "Value:"
+            , Attributes.value model.inputValue
+            , Events.onInput SetValue
+            ]
+            []
+        , Html.button [ Attributes.type_ "button", Events.onClick SaveToLocalStorage ] [ Html.text "Save" ]
+    ]
