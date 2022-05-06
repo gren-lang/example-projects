@@ -1,6 +1,6 @@
 # TodoMVC in Gren - [Try It!](https://roaring-maamoul-19ebb0.netlify.app/)
 
-## This i a port of [Elm TodoMVC](https://github.com/evancz/elm-todomvc) to the Gren programming language
+## This is a port of [Elm TodoMVC](https://github.com/evancz/elm-todomvc) to the Gren programming language
 
 All of the Gren code lives in `src/Main.gren` and relies on the gren-lang/html library.
 

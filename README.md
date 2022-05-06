@@ -15,4 +15,8 @@ Traditionally the first program one creates in any language, here implemented as
 
 ## files
 
-This program shows how you can make use of `gren-lang/files` for downloading and uploading files from a browser-based Gren program.
+This program shows how you can make use of the `gren-lang/files` package for downloading and uploading files from a browser-based Gren program.
+
+## todo\_mvc
+
+This is an implementation of the infamous [Todo MVC](https://todomvc.com) app in Gren.
