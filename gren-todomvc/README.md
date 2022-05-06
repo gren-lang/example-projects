@@ -1,4 +1,4 @@
-# TodoMVC in Gren
+# TodoMVC in Gren - [Try It!](https://roaring-maamoul-19ebb0.netlify.app/)
 
 ## This i a port of [Elm TodoMVC](https://github.com/evancz/elm-todomvc) to the Gren programming language
 
