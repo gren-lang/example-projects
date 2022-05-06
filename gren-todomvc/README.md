@@ -1,5 +1,7 @@
 # TodoMVC in Gren
 
+## This i a port of [Elm TodoMVC](https://github.com/evancz/elm-todomvc) to the Gren programming language
+
 All of the Gren code lives in `src/Main.gren` and relies on the gren-lang/html library.
 
 There also is a port handler set up in `index.html` to store the Gren application's state in `localStorage` on every update.
@@ -19,7 +21,7 @@ gren make ./src/Main.gren --output=gren-todomvc.js
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Elm • TodoMVC</title>
+    <title>Gren • TodoMVC</title>
     <script type="text/javascript" src="gren-todomvc.js"></script>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -27,7 +29,6 @@ gren make ./src/Main.gren --output=gren-todomvc.js
   <body></body>
 
   <script type="text/javascript">
-    console.log(window);
     var storedState = localStorage.getItem('gren-todo-save');
     var startingState = storedState ? JSON.parse(storedState) : null;
     var app = Gren.Main.init({ flags: startingState });

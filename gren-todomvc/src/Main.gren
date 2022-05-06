@@ -1,6 +1,6 @@
 port module Main exposing (..)
 
-{-| TodoMVC implemented in Elm, using plain HTML and CSS for rendering.
+{-| TodoMVC implemented in Gren, using plain HTML and CSS for rendering.
 
 This application is broken up into three key parts:
 
@@ -8,7 +8,7 @@ This application is broken up into three key parts:
   2. Update - a way to step the application state forward
   3. View   - a way to visualize our application state with HTML
 
-This clean division of concerns is a core part of Elm. You can read more about
+This clean division of concerns is a core part of Gren. You can read more about
 this in <http://guide.elm-lang.org/architecture/index.html>
 -}
 
@@ -27,7 +27,7 @@ import Array exposing (Array)
 main =
     Browser.document
         { init = init
-        , view = \model -> { title = "Elm • TodoMVC", body = [view model] }
+        , view = \model -> { title = "Gren • TodoMVC", body = [view model] }
         , update = updateWithStorage
         , subscriptions = \_ -> Sub.none
         }
@@ -91,10 +91,6 @@ newEntry desc id =
 
 init : Maybe Model -> { model : Model, command : Cmd Msg }
 init maybeModel =
-    let
-        _ =
-            Debug.log "maybeModel" maybeModel
-    in
   { model = Maybe.withDefault emptyModel maybeModel
   , command = Cmd.none
   }
@@ -429,8 +425,10 @@ infoFooter =
     footer [ class "info" ]
         [ p [] [ text "Double-click to edit a todo" ]
         , p []
-            [ text "Written by "
-            , a [ href "https://github.com/evancz" ] [ text "Evan Czaplicki" ]
+            [ text "Originally written by " 
+            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"] 
+            , text "in Elm, ported to Gren by the "
+            , a [ href "https://github.com/gren-lang" ] [ text "Gren CONTRIBUTORS" ]
             ]
         , p []
             [ text "Part of "
