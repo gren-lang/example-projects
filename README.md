@@ -8,7 +8,7 @@ Traditionally the first program one creates in any language, here implemented as
 
 ## 7GUIs
 
-7GUIs is a set of small tasks, suitable for demonstrating how common GUI patterns can be implemented in a specific framework. The following folders implement the solutions to the [https://eugenkiss.github.io/7guis/tasks](7GUIs) tasks:
+[7GUIs](https://eugenkiss.github.io/7guis) is a set of small tasks, suitable for demonstrating how common GUI patterns can be implemented in a specific framework. The following folders implement the solutions to the [7GUIs tasks](https://eugenkiss.github.io/7guis/tasks):
 
 * counter
 * __todo__
