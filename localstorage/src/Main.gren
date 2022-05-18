@@ -186,22 +186,22 @@ view model =
                 [ Attributes.type_ "button"
                 , Events.onClick <| SaveToLocalStorage model.inputKey model.inputValue
                 ]
-                [ Html.text "Save" ]
+                [ Html.text "💾 Save" ]
             , Html.button
                 [ Attributes.type_ "button"
                 , Events.onClick <| GetFromLocalStorage model.inputKey
                 ]
-                [ Html.text "Get" ]
+                [ Html.text "🔎 Get" ]
             , Html.button
                 [ Attributes.type_ "button"
                 , Events.onClick <| RemoveFromLocalStorage model.inputKey
                 ]
-                [ Html.text "Remove" ]
+                [ Html.text "🗑 Remove" ]
             , Html.button
                 [ Attributes.type_ "button"
                 , Events.onClick ClearLocalStorage
                 ]
-                [ Html.text "Clear" ]
+                [ Html.text "🧹 Clear" ]
             ]
         , Html.div [] [ Html.p [] [ Html.text model.message ] ]
     ]
