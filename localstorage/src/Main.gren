@@ -58,8 +58,6 @@ type Msg
   | RemovedFromLocalStorage Key (Result Error Unit)
 
 
-
-
 type alias Key = String
 
 
@@ -163,6 +161,7 @@ update msg model =
         { model = { model | message = "Failed to remove item with key \"" ++ key ++ "\" from localstorage: " ++ err }
         , command = Cmd.none
         }
+
 
 -- VIEW
 
