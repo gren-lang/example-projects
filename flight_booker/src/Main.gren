@@ -55,8 +55,8 @@ init  =
         date = Date.fromCalendarDate 2022 (Date.numberToMonth 6) 14
     in 
     { flightType = OneWay
-    , input1 = Date.format "dd.MM.yyy" date 
-    , input2 = Date.format "dd.MM.yyy" date
+    , input1 = Date.format "dd.MM.yyyy" date 
+    , input2 = Date.format "dd.MM.yyyy" date
     , date1 = Just date
     , date2 = Just date
     } 
