@@ -1,0 +1,173 @@
+module Main exposing (main)
+
+import Browser
+import Html exposing (Html,text,div,input,button,select,option)
+import Html.Attributes exposing (style,value,disabled)
+import Html.Events as Event exposing (onInput)
+import Date exposing (Date)
+import Task 
+
+
+main : Program Unit Model Msg
+main =
+    Browser.sandbox
+        { init = init
+        , update = update
+        , view = view
+        }
+
+
+type FlightType 
+    = OneWay 
+    | ReturnFlight
+
+
+flightTypeToString : FlightType -> String 
+flightTypeToString flightType =
+    case flightType of 
+        OneWay -> 
+            "One-way flight"
+        ReturnFlight ->
+            "Return flight"
+
+
+flightTypeFromString : String -> FlightType 
+flightTypeFromString str =
+    case str of 
+        "Return flight" -> 
+            ReturnFlight
+        _ -> 
+            OneWay
+
+
+type alias Model =
+    { flightType : FlightType
+    , input1: String
+    , input2: String 
+    , date1 : Maybe Date 
+    , date2 : Maybe Date 
+    }    
+
+
+init : Model
+init  = 
+    let 
+        date = Date.fromCalendarDate 2022 (Date.numberToMonth 6) 14
+    in 
+    { flightType = OneWay
+    , input1 = Date.format "dd.MM.yyyy" date 
+    , input2 = Date.format "dd.MM.yyyy" date
+    , date1 = Just date
+    , date2 = Just date
+    } 
+    
+
+type Msg 
+    = FlightTypeChanged String
+    | Input1Changed String 
+    | Input2Changed String
+
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        FlightTypeChanged asString -> 
+            { model | flightType = flightTypeFromString asString }
+        
+        Input1Changed str ->
+            { model | input1 = str
+                    , date1 = parseDate str 
+            }
+
+        Input2Changed str ->
+            { model | input2 = str
+                    , date2 = parseDate str 
+            }
+
+
+-- VIEW
+
+view : Model -> Html Msg
+view model = 
+    div 
+        [ style "display" "flex"
+        , style "flex-direction" "column"
+        , style "width" "100px"
+        , style "padding" "40px"
+        ] 
+        [ flightTypeSelector
+        , dateInput 
+            { value = model.input1 
+            , date = model.date1 
+            , changeMsg = Input1Changed 
+            , isDisabled = False 
+            }
+        , dateInput 
+            { value = model.input2 
+            , date = model.date2 
+            , changeMsg = Input2Changed 
+            , isDisabled = model.flightType == OneWay
+            }
+        , bookButton 
+            { isDisabled = checkIfDisabled model.flightType model.date1 model.date2 }
+        ]
+            
+
+flightTypeSelector : Html Msg 
+flightTypeSelector =
+     select [ onInput FlightTypeChanged ] 
+            [ option [] [ text ( flightTypeToString OneWay ) ] 
+            , option [] [ text ( flightTypeToString ReturnFlight ) ] 
+            ]
+
+
+dateInput: { value: String, date: Maybe Date, changeMsg: String -> Msg, isDisabled: Bool } -> Html Msg  
+dateInput { value=value_,date,changeMsg,isDisabled } = 
+    input 
+        [ value value_
+        , onInput changeMsg 
+        , disabled isDisabled
+        , style "background-color"  ( if date == Nothing then "red" else "white" )
+        ] 
+        []  
+
+
+bookButton : { isDisabled : Bool } -> Html Msg 
+bookButton { isDisabled } = 
+    button [ disabled isDisabled ] [ text "Book" ]
+
+
+
+-- Helper functions
+
+checkIfDisabled : FlightType -> Maybe Date -> Maybe Date -> Bool 
+checkIfDisabled flightType maybeDate1 maybeDate2 =
+    case flightType of 
+        OneWay ->
+            maybeDate1 == Nothing
+
+        ReturnFlight -> 
+            let  
+                compare = 
+                    Maybe.map2 (\date1 date2 -> Date.compare date1 date2)
+                        maybeDate1
+                        maybeDate2
+            in 
+                case compare of 
+                    Just GT -> 
+                        True
+                
+                    _ -> 
+                        False
+            
+
+parseDate : String -> Maybe Date 
+parseDate dateString = 
+    if String.length dateString /= 10 then 
+        Nothing 
+    else
+        String.split "." dateString 
+            |> Array.reverse 
+            |> String.join "-"   
+            |> Date.fromIsoString
+            |> Result.toMaybe
