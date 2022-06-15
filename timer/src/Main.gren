@@ -1,0 +1,131 @@
+module Main exposing (main)
+
+import Browser
+import Html exposing (Html,text,div,span,button,input)
+import Html.Attributes exposing (style,type_,value)
+import Html.Events as Event exposing (onClick,onInput)
+import Time exposing (Posix)
+
+
+type alias Model =
+    { count : Int
+    , ticksToCount: Int
+    }    
+
+
+initialModel : Model
+initialModel  = 
+    { count = 0
+    , ticksToCount = 30
+    }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    -- Subscribe to a "Tick" every 100ms if we are not done counting
+    if model.count < model.ticksToCount then 
+        Time.every 100 Tick
+    else 
+        Sub.none
+    
+
+type Msg 
+    = Tick Posix
+    | SliderMoved String 
+    | ResetButtonPressed
+
+
+update : Msg -> Model -> Model
+update msg model =
+    case msg of
+        Tick _ -> 
+            { model | count = model.count + 1 }
+
+        ResetButtonPressed ->
+            { model | count = 0 }
+
+        SliderMoved val ->
+            { model | ticksToCount = String.toInt val |> Maybe.withDefault 0  }
+        
+
+-- VIEW
+
+view : Model -> Html Msg
+view model = 
+    div 
+        [ style "display" "flex"
+        , style "flex-direction" "column"
+        , style "width" "200px"
+        , style "padding" "40px"
+        ] 
+        [ progressBar model 
+        , elapsedTime model.count
+        , durationSlider model.ticksToCount 
+        , button [ onClick ResetButtonPressed ] [ text "Reset" ]
+        ]
+
+
+progressBar: Model -> Html msg 
+progressBar { count, ticksToCount } =
+    let
+        -- Make sure we do not ever get more that 100%
+        percent = 
+            min 100 (toFloat count / toFloat ticksToCount * 100)
+    in 
+    div 
+        [ style "border" "1px solid grey"
+        , style "border-radius" "4px"
+        ] 
+        [ span 
+            [ style "display" "block"
+            , style "width" (String.fromFloat percent ++ "%")
+            , style "height" "8px"
+            , style "background-color" "#005FFF"
+            ] 
+            []
+        ]
+
+
+elapsedTime : Int -> Html Msg
+elapsedTime count = 
+    let  
+        seconds = 
+            toFloat count / 10
+
+        asString = 
+            String.fromFloat seconds
+    in 
+        -- Hacky solution to always show one decimal
+        if String.contains "." asString then 
+            text (asString ++ "s")
+        else 
+            text (asString ++ ".0s")
+
+
+durationSlider : Int -> Html Msg 
+durationSlider ticksToCount =
+    div 
+        [ style "display" "flex" 
+        , style "flex-direction" "row" 
+        ] 
+        [ div [ style "width" "40%" ] [ text "Duration:" ]
+        , input 
+            [ style "width" "60%"
+            , type_ "range" 
+            , onInput SliderMoved
+            , value (String.fromInt ticksToCount)
+            ] 
+            [] 
+        ]
+        
+
+-- Program
+main : Program {} Model Msg
+main =
+    Browser.element
+        { init = \flags -> { model = initialModel, command = Cmd.none }
+        , view = view
+        , update = \msg model -> { model = update msg model, command = Cmd.none }
+        , subscriptions = subscriptions
+        }
+   

@@ -13,6 +13,7 @@ Traditionally the first program one creates in any language, here implemented as
 * counter
 * temperature\_converter
 * flight\_booker
+* timer
 * __more to come__
 
 ## files
