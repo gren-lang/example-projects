@@ -1,0 +1,24 @@
+{
+  "name": "example-projects",
+  "version": "1.0.0",
+  "description": "A collection of example programs, written in Gren.",
+  "private": true,
+  "main": "",
+  "scripts": {
+    "test": "cypress run",
+    "cypress:open": "cypress open"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gren-lang/example-projects.git"
+  },
+  "author": "Robin Heggelund Hansen",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/gren-lang/example-projects/issues"
+  },
+  "homepage": "https://github.com/gren-lang/example-projects#readme",
+  "devDependencies": {
+    "cypress": "^10.3.0"
+  }
+}
