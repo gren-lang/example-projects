@@ -4823,6 +4823,23 @@ var $gren_lang$virtual_dom$VirtualDom$node = function (tag) {
 var $gren_lang$html$Html$node = $gren_lang$virtual_dom$VirtualDom$node;
 var $gren_lang$html$Html$button = $gren_lang$html$Html$node('button');
 var $gren_lang$html$Html$div = $gren_lang$html$Html$node('div');
+var $gren_lang$virtual_dom$VirtualDom$property = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_property,
+			_VirtualDom_noInnerHtmlOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $gren_lang$html$Html$Attributes$property = $gren_lang$virtual_dom$VirtualDom$property;
+var $gren_lang$json$Json$Encode$string = _Json_wrap;
+var $gren_lang$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$gren_lang$html$Html$Attributes$property,
+			key,
+			$gren_lang$json$Json$Encode$string(string));
+	});
+var $gren_lang$html$Html$Attributes$id = $gren_lang$html$Html$Attributes$stringProperty('id');
 var $gren_lang$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -4840,6 +4857,7 @@ var $gren_lang$html$Html$Events$onClick = function (msg) {
 		'click',
 		$gren_lang$json$Json$Decode$succeed(msg));
 };
+var $gren_lang$html$Html$span = $gren_lang$html$Html$node('span');
 var $gren_lang$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $gren_lang$html$Html$text = $gren_lang$virtual_dom$VirtualDom$text;
 var $author$project$Main$view = function (model) {
@@ -4847,11 +4865,19 @@ var $author$project$Main$view = function (model) {
 		$gren_lang$html$Html$div,
 		[],
 		[
-			$gren_lang$html$Html$text(
-			$gren_lang$core$String$fromInt(model)),
+			A2(
+			$gren_lang$html$Html$span,
+			[
+				$gren_lang$html$Html$Attributes$id('count')
+			],
+			[
+				$gren_lang$html$Html$text(
+				$gren_lang$core$String$fromInt(model))
+			]),
 			A2(
 			$gren_lang$html$Html$button,
 			[
+				$gren_lang$html$Html$Attributes$id('increase-count'),
 				$gren_lang$html$Html$Events$onClick($author$project$Main$Clicked)
 			],
 			[

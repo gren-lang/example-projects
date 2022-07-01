@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
+import Html.Attributes as Attribute
 import Html.Events as Event
 
 
@@ -32,9 +33,12 @@ update msg model =
 view : Model -> Html Msg
 view model = 
     Html.div []
-        [ Html.text <| String.fromInt model
+        [ Html.span 
+            [ Attribute.id "count" ]
+            [ Html.text <| String.fromInt model ]
         , Html.button
-            [ Event.onClick Clicked
+            [ Attribute.id "increase-count"
+            , Event.onClick Clicked
             ]
             [ Html.text "Count" ]
         ]
