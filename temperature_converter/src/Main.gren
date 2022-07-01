@@ -79,13 +79,15 @@ view : Model -> Html Msg
 view model = 
     Html.div []
         [ Html.input 
-            [ Event.onInput SetCelsius
+            [ Attribute.id "celsius"
+            , Event.onInput SetCelsius
             , Attribute.value model.celsius
             ] 
             []
         , Html.text "Celsius"
         , Html.input 
-            [ Event.onInput SetFahrenheit 
+            [ Attribute.id "fahrenheit"
+            , Event.onInput SetFahrenheit 
             , Attribute.value model.fahrenheit
             ]
             []

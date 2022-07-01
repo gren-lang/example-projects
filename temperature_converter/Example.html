@@ -4887,6 +4887,23 @@ var $gren_lang$virtual_dom$VirtualDom$node = function (tag) {
 };
 var $gren_lang$html$Html$node = $gren_lang$virtual_dom$VirtualDom$node;
 var $gren_lang$html$Html$div = $gren_lang$html$Html$node('div');
+var $gren_lang$virtual_dom$VirtualDom$property = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_property,
+			_VirtualDom_noInnerHtmlOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $gren_lang$html$Html$Attributes$property = $gren_lang$virtual_dom$VirtualDom$property;
+var $gren_lang$json$Json$Encode$string = _Json_wrap;
+var $gren_lang$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$gren_lang$html$Html$Attributes$property,
+			key,
+			$gren_lang$json$Json$Encode$string(string));
+	});
+var $gren_lang$html$Html$Attributes$id = $gren_lang$html$Html$Attributes$stringProperty('id');
 var $gren_lang$html$Html$input = $gren_lang$html$Html$node('input');
 var $gren_lang$html$Html$Events$alwaysStop = function (msg) {
 	return {message: msg, stopPropagation: true};
@@ -4924,22 +4941,6 @@ var $gren_lang$html$Html$Events$onInput = function (tagger) {
 };
 var $gren_lang$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $gren_lang$html$Html$text = $gren_lang$virtual_dom$VirtualDom$text;
-var $gren_lang$virtual_dom$VirtualDom$property = F2(
-	function (key, value) {
-		return A2(
-			_VirtualDom_property,
-			_VirtualDom_noInnerHtmlOrFormAction(key),
-			_VirtualDom_noJavaScriptOrHtmlUri(value));
-	});
-var $gren_lang$html$Html$Attributes$property = $gren_lang$virtual_dom$VirtualDom$property;
-var $gren_lang$json$Json$Encode$string = _Json_wrap;
-var $gren_lang$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$gren_lang$html$Html$Attributes$property,
-			key,
-			$gren_lang$json$Json$Encode$string(string));
-	});
 var $gren_lang$html$Html$Attributes$value = $gren_lang$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$view = function (model) {
 	return A2(
@@ -4949,6 +4950,7 @@ var $author$project$Main$view = function (model) {
 			A2(
 			$gren_lang$html$Html$input,
 			[
+				$gren_lang$html$Html$Attributes$id('celsius'),
 				$gren_lang$html$Html$Events$onInput($author$project$Main$SetCelsius),
 				$gren_lang$html$Html$Attributes$value(model.celsius)
 			],
@@ -4957,6 +4959,7 @@ var $author$project$Main$view = function (model) {
 			A2(
 			$gren_lang$html$Html$input,
 			[
+				$gren_lang$html$Html$Attributes$id('fahrenheit'),
 				$gren_lang$html$Html$Events$onInput($author$project$Main$SetFahrenheit),
 				$gren_lang$html$Html$Attributes$value(model.fahrenheit)
 			],
