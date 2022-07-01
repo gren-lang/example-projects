@@ -1,8 +1,8 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html,text,div,input,button,select,option)
-import Html.Attributes exposing (style,value,disabled)
+import Html exposing (Html, text, div, input, button, select, option)
+import Html.Attributes exposing (id, style, value, disabled)
 import Html.Events as Event exposing (onInput)
 import Date exposing (Date)
 import Task 
@@ -97,13 +97,15 @@ view model =
         ] 
         [ flightTypeSelector
         , dateInput 
-            { value = model.input1 
+            { id = "departure"
+            , value = model.input1 
             , date = model.date1 
             , changeMsg = Input1Changed 
             , isDisabled = False 
             }
         , dateInput 
-            { value = model.input2 
+            { id = "arrival"
+            , value = model.input2 
             , date = model.date2 
             , changeMsg = Input2Changed 
             , isDisabled = model.flightType == OneWay
@@ -115,26 +117,42 @@ view model =
 
 flightTypeSelector : Html Msg 
 flightTypeSelector =
-     select [ onInput FlightTypeChanged ] 
-            [ option [] [ text ( flightTypeToString OneWay ) ] 
-            , option [] [ text ( flightTypeToString ReturnFlight ) ] 
-            ]
+     select 
+        [ id "flight-type"
+        , onInput FlightTypeChanged
+        ]
+        [ option [] [ text ( flightTypeToString OneWay ) ] 
+        , option [] [ text ( flightTypeToString ReturnFlight ) ] 
+        ]
 
 
-dateInput: { value: String, date: Maybe Date, changeMsg: String -> Msg, isDisabled: Bool } -> Html Msg  
-dateInput { value=value_,date,changeMsg,isDisabled } = 
+type alias DateInputConfig =
+    { id: String
+    , value: String
+    , date: Maybe Date
+    , changeMsg: String -> Msg
+    , isDisabled: Bool
+    }
+
+dateInput: DateInputConfig -> Html Msg  
+dateInput { id = id_, value = value_, date, changeMsg, isDisabled } = 
     input 
-        [ value value_
+        [ id id_
+        , value value_
         , onInput changeMsg 
         , disabled isDisabled
-        , style "background-color"  ( if date == Nothing then "red" else "white" )
+        , style "background-color" ( if date == Nothing then "red" else "white" )
         ] 
         []  
 
 
 bookButton : { isDisabled : Bool } -> Html Msg 
 bookButton { isDisabled } = 
-    button [ disabled isDisabled ] [ text "Book" ]
+    button 
+        [ id "book"
+        , disabled isDisabled 
+        ] 
+        [ text "Book" ]
 
 
 

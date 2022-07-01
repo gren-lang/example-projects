@@ -6777,6 +6777,15 @@ var $gren_lang$html$Html$Attributes$boolProperty = F2(
 			$gren_lang$json$Json$Encode$bool(bool));
 	});
 var $gren_lang$html$Html$Attributes$disabled = $gren_lang$html$Html$Attributes$boolProperty('disabled');
+var $gren_lang$json$Json$Encode$string = _Json_wrap;
+var $gren_lang$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$gren_lang$html$Html$Attributes$property,
+			key,
+			$gren_lang$json$Json$Encode$string(string));
+	});
+var $gren_lang$html$Html$Attributes$id = $gren_lang$html$Html$Attributes$stringProperty('id');
 var $gren_lang$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $gren_lang$html$Html$text = $gren_lang$virtual_dom$VirtualDom$text;
 var $author$project$Main$bookButton = function (_v0) {
@@ -6784,6 +6793,7 @@ var $author$project$Main$bookButton = function (_v0) {
 	return A2(
 		$gren_lang$html$Html$button,
 		[
+			$gren_lang$html$Html$Attributes$id('book'),
 			$gren_lang$html$Html$Attributes$disabled(isDisabled)
 		],
 		[
@@ -6870,16 +6880,9 @@ var $gren_lang$html$Html$Events$onInput = function (tagger) {
 };
 var $gren_lang$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $gren_lang$html$Html$Attributes$style = $gren_lang$virtual_dom$VirtualDom$style;
-var $gren_lang$json$Json$Encode$string = _Json_wrap;
-var $gren_lang$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$gren_lang$html$Html$Attributes$property,
-			key,
-			$gren_lang$json$Json$Encode$string(string));
-	});
 var $gren_lang$html$Html$Attributes$value = $gren_lang$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$dateInput = function (_v0) {
+	var id_ = _v0.id;
 	var value_ = _v0.value;
 	var date = _v0.date;
 	var changeMsg = _v0.changeMsg;
@@ -6887,6 +6890,7 @@ var $author$project$Main$dateInput = function (_v0) {
 	return A2(
 		$gren_lang$html$Html$input,
 		[
+			$gren_lang$html$Html$Attributes$id(id_),
 			$gren_lang$html$Html$Attributes$value(value_),
 			$gren_lang$html$Html$Events$onInput(changeMsg),
 			$gren_lang$html$Html$Attributes$disabled(isDisabled),
@@ -6913,6 +6917,7 @@ var $gren_lang$html$Html$select = $gren_lang$html$Html$node('select');
 var $author$project$Main$flightTypeSelector = A2(
 	$gren_lang$html$Html$select,
 	[
+		$gren_lang$html$Html$Attributes$id('flight-type'),
 		$gren_lang$html$Html$Events$onInput($author$project$Main$FlightTypeChanged)
 	],
 	[
@@ -6943,11 +6948,12 @@ var $author$project$Main$view = function (model) {
 		[
 			$author$project$Main$flightTypeSelector,
 			$author$project$Main$dateInput(
-			{changeMsg: $author$project$Main$Input1Changed, date: model.date1, isDisabled: false, value: model.input1}),
+			{changeMsg: $author$project$Main$Input1Changed, date: model.date1, id: 'departure', isDisabled: false, value: model.input1}),
 			$author$project$Main$dateInput(
 			{
 				changeMsg: $author$project$Main$Input2Changed,
 				date: model.date2,
+				id: 'arrival',
 				isDisabled: _Utils_eq(model.flightType, $author$project$Main$OneWay),
 				value: model.input2
 			}),
