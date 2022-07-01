@@ -69,7 +69,9 @@ view model =
         , on "change" (D.map GotFiles filesDecoder)
         ]
         []
-    , div [] [ text (Debug.toString model) ]
+    , div 
+        [ id "file-view" ] 
+        [ text (Debug.toString model) ]
     ]
 
 

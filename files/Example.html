@@ -5009,8 +5009,6 @@ var $author$project$Main$filesDecoder = A2(
 	$gren_lang$json$Json$Decode$at,
 	['target', 'files'],
 	$gren_lang$json$Json$Decode$array($gren_lang$file$File$decoder));
-var $gren_lang$html$Html$input = $gren_lang$html$Html$node('input');
-var $gren_lang$json$Json$Encode$bool = _Json_wrap;
 var $gren_lang$virtual_dom$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
@@ -5019,6 +5017,17 @@ var $gren_lang$virtual_dom$VirtualDom$property = F2(
 			_VirtualDom_noJavaScriptOrHtmlUri(value));
 	});
 var $gren_lang$html$Html$Attributes$property = $gren_lang$virtual_dom$VirtualDom$property;
+var $gren_lang$json$Json$Encode$string = _Json_wrap;
+var $gren_lang$html$Html$Attributes$stringProperty = F2(
+	function (key, string) {
+		return A2(
+			$gren_lang$html$Html$Attributes$property,
+			key,
+			$gren_lang$json$Json$Encode$string(string));
+	});
+var $gren_lang$html$Html$Attributes$id = $gren_lang$html$Html$Attributes$stringProperty('id');
+var $gren_lang$html$Html$input = $gren_lang$html$Html$node('input');
+var $gren_lang$json$Json$Encode$bool = _Json_wrap;
 var $gren_lang$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -5041,14 +5050,6 @@ var $gren_lang$html$Html$Events$on = F2(
 var $gren_lang$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $gren_lang$html$Html$text = $gren_lang$virtual_dom$VirtualDom$text;
 var $gren_lang$core$Debug$toString = _Debug_toString;
-var $gren_lang$json$Json$Encode$string = _Json_wrap;
-var $gren_lang$html$Html$Attributes$stringProperty = F2(
-	function (key, string) {
-		return A2(
-			$gren_lang$html$Html$Attributes$property,
-			key,
-			$gren_lang$json$Json$Encode$string(string));
-	});
 var $gren_lang$html$Html$Attributes$type_ = $gren_lang$html$Html$Attributes$stringProperty('type');
 var $author$project$Main$view = function (model) {
 	return A2(
@@ -5068,7 +5069,9 @@ var $author$project$Main$view = function (model) {
 			[]),
 			A2(
 			$gren_lang$html$Html$div,
-			[],
+			[
+				$gren_lang$html$Html$Attributes$id('file-view')
+			],
 			[
 				$gren_lang$html$Html$text(
 				$gren_lang$core$Debug$toString(model))
