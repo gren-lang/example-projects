@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Html)
 import Html.Events as Events
 import Html.Attributes as Attributes
+import WebStorage
 import LocalStorage
 import Task
 
@@ -27,6 +28,7 @@ type alias Model =
     { inputKey : String
     , inputValue : String
     , message : String
+    , keys : Array String
     }
 
 
@@ -36,26 +38,39 @@ init =
         { inputKey = ""
         , inputValue = ""
         , message = ""
+        , keys = []
         }
-    , command = Cmd.none
+    , command = refreshContent
     }
+
+
+refreshContent : Cmd Msg
+refreshContent =
+    LocalStorage.length
+        |> Task.andThen (\length ->
+            Array.initialize length 0 identity
+                |> Array.map LocalStorage.keyAtIndex
+                |> Task.sequence
+                |> Task.mapError (always WebStorage.AccessError)
+        )
+        |> Task.attempt ShowContents
 
 
 -- UPDATE
 
 
 type Msg
-  = NoOp
-  | SetKey Key
+  = SetKey Key
   | SetValue Value
   | SaveToLocalStorage Key Value
-  | SavedToLocalStorage (Result Error Unit)
+  | SavedToLocalStorage (Result WebStorage.WriteError Unit)
   | ClearLocalStorage
-  | ClearedLocalStorage (Result Error Unit)
+  | ClearedLocalStorage (Result WebStorage.AccessError Unit)
   | GetFromLocalStorage Key
-  | GotFromLocalStorage Key (Result Error (Maybe Value))
+  | GotFromLocalStorage Key (Result WebStorage.ReadError Value)
   | RemoveFromLocalStorage Key
-  | RemovedFromLocalStorage Key (Result Error Unit)
+  | RemovedFromLocalStorage Key (Result WebStorage.AccessError Unit)
+  | ShowContents (Result WebStorage.AccessError (Array String))
 
 
 type alias Key = String
@@ -70,11 +85,6 @@ type alias Error = String
 update : Msg -> Model -> { model : Model, command : Cmd Msg }
 update msg model =
   case msg of
-    NoOp ->
-        { model = model
-        , command = Cmd.none
-        }
-
     SetKey key ->
         { model = { model | inputKey = key }
         , command = Cmd.none
@@ -94,15 +104,21 @@ update msg model =
 
     SavedToLocalStorage (Ok Unit) ->
         { model =
-            { inputKey = ""
-            , inputValue = ""
-            , message = "Saved <" ++ model.inputKey ++ ", " ++ model.inputValue ++ "> to localstorage"
+            { model
+                | inputKey = ""
+                , inputValue = ""
+                , message = "Saved <" ++ model.inputKey ++ ", " ++ model.inputValue ++ "> to localstorage"
             }
+        , command = refreshContent
+        }
+
+    SavedToLocalStorage (Err WebStorage.QuotaExceeded) ->
+        { model = { model | message = "Couldn't write to local storage as we've used our quota" }
         , command = Cmd.none
         }
 
-    SavedToLocalStorage (Err err) ->
-        { model = { model | message = "Failed to save to localstorage: " ++ err }
+    SavedToLocalStorage (Err WebStorage.WriteBlocked) ->
+        { model = { model | message = "Failed to write to localstorage" }
         , command = Cmd.none
         }
 
@@ -115,11 +131,11 @@ update msg model =
 
     ClearedLocalStorage (Ok Unit) ->
         { model = { model | message = "Successfully cleared localstorage" }
-        , command = Cmd.none
+        , command = refreshContent
         }
 
     ClearedLocalStorage (Err err) ->
-        { model = { model | message = "Failed to clear localstorage: " ++ err }
+        { model = { model | message = "Failed to clear localstorage" }
         , command = Cmd.none
         }
 
@@ -130,18 +146,18 @@ update msg model =
                 |> Task.attempt (GotFromLocalStorage key)
         }
 
-    GotFromLocalStorage key (Ok (Just value)) ->
+    GotFromLocalStorage key (Ok value) ->
         { model = { model | message = "Got <" ++ key ++ ", " ++ value ++ "> from localstorage." }
-        , command = Cmd.none
+        , command = refreshContent
         }
 
-    GotFromLocalStorage key (Ok Nothing) ->
+    GotFromLocalStorage key (Err WebStorage.NoValue) ->
         { model = { model | message = "Found no items with key \"" ++ key ++ "\"" }
         , command = Cmd.none
         }
 
-    GotFromLocalStorage _ (Err err) ->
-        { model = { model | message = "Failed to get from localstorage: " ++ err }
+    GotFromLocalStorage _ (Err WebStorage.ReadBlocked) ->
+        { model = { model | message = "Failed to read from localstorage" }
         , command = Cmd.none
         }
 
@@ -154,11 +170,21 @@ update msg model =
 
     RemovedFromLocalStorage key (Ok Unit) ->
         { model = { model | message = "Removed item  with key \"" ++ key ++ "\" from localstorage." }
-        , command = Cmd.none
+        , command = refreshContent
         }
 
     RemovedFromLocalStorage key (Err err) ->
-        { model = { model | message = "Failed to remove item with key \"" ++ key ++ "\" from localstorage: " ++ err }
+        { model = { model | message = "Failed to remove item with key \"" ++ key ++ "\" from localstorage" }
+        , command = Cmd.none
+        }
+
+    ShowContents (Ok keys) ->
+        { model = { model | keys = keys }
+        , command = Cmd.none
+        }
+
+    ShowContents (Err WebStorage.AccessError) ->
+        { model = { model | message = "Failed to retrieve contents of local storage:" }
         , command = Cmd.none
         }
 
@@ -203,5 +229,20 @@ view model =
                 ]
                 [ Html.text "🧹 Clear" ]
             ]
-        , Html.div [] [ Html.p [] [ Html.text model.message ] ]
+        , Html.div []
+            [ Html.p [] [ Html.text model.message ] ]
+        , Html.div []
+            [ Html.p []
+                [ Html.text <|
+                    "There are currently "
+                    ++ String.fromInt (Array.length model.keys)
+                    ++ " keys in local storage:"
+                ]
+            ]
+        , Html.ul [] (Array.map viewKey model.keys)
     ]
+
+
+viewKey : String -> Html msg
+viewKey key =
+    Html.li [] [ Html.text key ]

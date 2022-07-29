@@ -3,7 +3,8 @@ common_examples := counter\
 			flight_booker\
 			hello_world\
 			temperature_converter\
-			timer
+			timer\
+			local_storage
 
 all_examples := $(common_examples) todo_mvc
 
