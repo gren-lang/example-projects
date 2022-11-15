@@ -3955,6 +3955,98 @@ function _Browser_load(url) {
     })
   );
 }
+
+
+var _WebStorage_length = function (useLocalStorage) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            var length = _WebStorage_getStore(useLocalStorage).length;
+        } catch (e) {
+            return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$AccessError));
+        }
+
+        return callback(_Scheduler_succeed(length));
+    });
+};
+
+var _WebStorage_key = F2(function(useLocalStorage, index) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            var key = _WebStorage_getStore(useLocalStorage).key(index);
+
+            if (key == null) {
+                return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$NoValue));
+            } else {
+                return callback(_Scheduler_succeed(key));
+            }
+        } catch (e) {
+            return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$ReadBlocked));
+        }
+    });
+});
+
+var _WebStorage_get = F2(function(useLocalStorage, key) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            var item = _WebStorage_getStore(useLocalStorage).getItem(key);
+
+            if (item == null) {
+                return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$NoValue));
+            } else {
+                return callback(_Scheduler_succeed(item));
+            }
+        } catch (e) {
+            return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$ReadBlocked));
+        }
+    });
+});
+
+var _WebStorage_set = F3(function (useLocalStorage, key, value) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            _WebStorage_getStore(useLocalStorage).setItem(key, value);
+        } catch (err) {
+            if (err.name === 'QuotaExceededError') {
+                return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$QuotaExceeded));
+            } else {
+                return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$WriteBlocked));
+            }
+        }
+
+        return callback(_Scheduler_succeed({}));
+    })
+});
+
+var _WebStorage_remove = F2(function (useLocalStorage, key) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            _WebStorage_getStore(useLocalStorage).removeItem(key);
+        } catch (err) {
+            return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$AccessError));
+        }
+
+        return callback(_Scheduler_succeed({}));
+    })
+});
+
+var _WebStorage_clear = function (useLocalStorage) {
+    return _Scheduler_binding(function (callback) {
+        try {
+            _WebStorage_getStore(useLocalStorage).clear();
+        } catch (err) {
+            return callback(_Scheduler_fail($gren_lang$web_storage$WebStorage$AccessError));
+        }
+
+        return callback(_Scheduler_succeed({}));
+    });
+};
+
+
+// Private functions
+
+var _WebStorage_getStore = function(persist) {
+    return persist ? window.localStorage : window.sessionStorage;
+}
 var $gren_lang$core$Dict$foldl = F3(
 	function (func, acc, dict) {
 		foldl:
@@ -4182,9 +4274,6 @@ var $gren_lang$core$Result$isOk = function (result) {
 		return false;
 	}
 };
-var $gren_lang$core$Json$Decode$andThen = _Json_andThen;
-var $gren_lang$core$Json$Decode$array = _Json_decodeArray;
-var $gren_lang$core$Json$Decode$bool = _Json_decodeBool;
 var $gren_lang$core$Json$Decode$map = _Json_map1;
 var $gren_lang$core$Json$Decode$map2 = _Json_map2;
 var $gren_lang$core$Json$Decode$succeed = _Json_succeed;
@@ -4450,38 +4539,87 @@ var $gren_lang$core$Task$perform = F2(
 				A2($gren_lang$core$Task$map, toMessage, task)));
 	});
 var $gren_lang$browser$Browser$document = _Browser_document;
-var $gren_lang$core$Json$Decode$field = _Json_decodeField;
 var $author$project$Main$emptyModel = {
 	entries: [],
 	field: '',
 	uid: 0,
 	visibility: 'All'
 };
-var $gren_lang$core$Platform$Cmd$batch = _Platform_batch;
-var $gren_lang$core$Platform$Cmd$none = $gren_lang$core$Platform$Cmd$batch(
-	[]);
-var $gren_lang$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
-var $author$project$Main$init = function (maybeModel) {
-	return {
-		command: $gren_lang$core$Platform$Cmd$none,
-		model: A2($gren_lang$core$Maybe$withDefault, $author$project$Main$emptyModel, maybeModel)
-	};
+var $author$project$Main$LoadedEntries = function (a) {
+	return {$: 'LoadedEntries', a: a};
 };
+var $author$project$Main$NoOp = {$: 'NoOp'};
+var $gren_lang$core$Json$Decode$array = _Json_decodeArray;
+var $gren_lang$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $gren_lang$core$Task$onError = _Scheduler_onError;
+var $gren_lang$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return $gren_lang$core$Task$command(
+			$gren_lang$core$Task$Perform(
+				A2(
+					$gren_lang$core$Task$onError,
+					A2(
+						$gren_lang$core$Basics$composeL,
+						A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage),
+						$gren_lang$core$Result$Err),
+					A2(
+						$gren_lang$core$Task$andThen,
+						A2(
+							$gren_lang$core$Basics$composeL,
+							A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage),
+							$gren_lang$core$Result$Ok),
+						task))));
+	});
+var $gren_lang$core$Json$Decode$decodeString = _Json_runOnString;
+var $gren_lang$core$Json$Decode$bool = _Json_decodeBool;
 var $gren_lang$core$Json$Decode$int = _Json_decodeInt;
+var $gren_lang$core$Json$Decode$map4 = _Json_map4;
+var $gren_lang$core$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$entryDecoder = A5(
+	$gren_lang$core$Json$Decode$map4,
+	F4(
+		function (description, completed, editing, id) {
+			return {completed: completed, description: description, editing: editing, id: id};
+		}),
+	$gren_lang$core$Json$Decode$string,
+	$gren_lang$core$Json$Decode$bool,
+	$gren_lang$core$Json$Decode$bool,
+	$gren_lang$core$Json$Decode$int);
+var $gren_lang$web_storage$WebStorage$AccessError = {$: 'AccessError'};
+var $gren_lang$web_storage$WebStorage$NoValue = {$: 'NoValue'};
+var $gren_lang$web_storage$WebStorage$QuotaExceeded = {$: 'QuotaExceeded'};
+var $gren_lang$web_storage$WebStorage$ReadBlocked = {$: 'ReadBlocked'};
+var $gren_lang$web_storage$WebStorage$WriteBlocked = {$: 'WriteBlocked'};
+var $gren_lang$web_storage$Internal$WebStorage$get = _WebStorage_get;
+var $gren_lang$web_storage$LocalStorage$get = function (key) {
+	return A2($gren_lang$web_storage$Internal$WebStorage$get, true, key);
+};
+var $author$project$Main$getStorage = A2(
+	$gren_lang$core$Task$attempt,
+	function (res) {
+		if ((res.$ === 'Ok') && (res.a.$ === 'Ok')) {
+			var entries = res.a.a;
+			return $author$project$Main$LoadedEntries(entries);
+		} else {
+			return $author$project$Main$NoOp;
+		}
+	},
+	A2(
+		$gren_lang$core$Task$map,
+		$gren_lang$core$Json$Decode$decodeString(
+			$gren_lang$core$Json$Decode$array($author$project$Main$entryDecoder)),
+		$gren_lang$web_storage$LocalStorage$get('gren-todo-save')));
+var $author$project$Main$init = function (_v0) {
+	return {command: $author$project$Main$getStorage, model: $author$project$Main$emptyModel};
+};
 var $gren_lang$core$Platform$Sub$batch = _Platform_batch;
 var $gren_lang$core$Platform$Sub$none = $gren_lang$core$Platform$Sub$batch(
 	[]);
-var $gren_lang$core$Json$Decode$null = _Json_decodeNull;
-var $gren_lang$core$Json$Decode$oneOf = _Json_oneOf;
-var $gren_lang$core$Json$Decode$string = _Json_decodeString;
+var $gren_lang$core$Platform$Cmd$batch = _Platform_batch;
 var $gren_lang$core$Json$Encode$array = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -4509,75 +4647,44 @@ var $gren_lang$core$Json$Encode$object = function (pairs) {
 			pairs));
 };
 var $gren_lang$core$Json$Encode$string = _Json_wrap;
-var $author$project$Main$setStorage = _Platform_outgoingPort(
-	'setStorage',
-	function ($) {
-		return $gren_lang$core$Json$Encode$object(
-			[
-				{
-				key: 'entries',
-				value: $gren_lang$core$Json$Encode$array(
-					function ($) {
-						return $gren_lang$core$Json$Encode$object(
-							[
-								{
-								key: 'completed',
-								value: $gren_lang$core$Json$Encode$bool($.completed)
-							},
-								{
-								key: 'description',
-								value: $gren_lang$core$Json$Encode$string($.description)
-							},
-								{
-								key: 'editing',
-								value: $gren_lang$core$Json$Encode$bool($.editing)
-							},
-								{
-								key: 'id',
-								value: $gren_lang$core$Json$Encode$int($.id)
-							}
-							]);
-					})($.entries)
-			},
-				{
-				key: 'field',
-				value: $gren_lang$core$Json$Encode$string($.field)
-			},
-				{
-				key: 'uid',
-				value: $gren_lang$core$Json$Encode$int($.uid)
-			},
-				{
-				key: 'visibility',
-				value: $gren_lang$core$Json$Encode$string($.visibility)
-			}
-			]);
+var $author$project$Main$entryEncoder = function (entry) {
+	return $gren_lang$core$Json$Encode$object(
+		[
+			{
+			key: 'description',
+			value: $gren_lang$core$Json$Encode$string(entry.description)
+		},
+			{
+			key: 'completed',
+			value: $gren_lang$core$Json$Encode$bool(entry.completed)
+		},
+			{
+			key: 'editing',
+			value: $gren_lang$core$Json$Encode$bool(entry.editing)
+		},
+			{
+			key: 'id',
+			value: $gren_lang$core$Json$Encode$int(entry.id)
+		}
+		]);
+};
+var $gren_lang$web_storage$Internal$WebStorage$set = _WebStorage_set;
+var $gren_lang$web_storage$LocalStorage$set = F2(
+	function (key, value) {
+		return A3($gren_lang$web_storage$Internal$WebStorage$set, true, key, value);
 	});
-var $author$project$Main$NoOp = {$: 'NoOp'};
-var $gren_lang$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var $gren_lang$core$Task$onError = _Scheduler_onError;
-var $gren_lang$core$Task$attempt = F2(
-	function (resultToMessage, task) {
-		return $gren_lang$core$Task$command(
-			$gren_lang$core$Task$Perform(
-				A2(
-					$gren_lang$core$Task$onError,
-					A2(
-						$gren_lang$core$Basics$composeL,
-						A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage),
-						$gren_lang$core$Result$Err),
-					A2(
-						$gren_lang$core$Task$andThen,
-						A2(
-							$gren_lang$core$Basics$composeL,
-							A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage),
-							$gren_lang$core$Result$Ok),
-						task))));
-	});
+var $author$project$Main$setStorage = function (model) {
+	var json = A2(
+		$gren_lang$core$Json$Encode$encode,
+		0,
+		A2($gren_lang$core$Json$Encode$array, $author$project$Main$entryEncoder, model.entries));
+	return A2(
+		$gren_lang$core$Task$attempt,
+		function (_v0) {
+			return $author$project$Main$NoOp;
+		},
+		A2($gren_lang$web_storage$LocalStorage$set, 'gren-todo-save', json));
+};
 var $gren_lang$core$Array$filter = F2(
 	function (pred, array) {
 		return A3(
@@ -4595,6 +4702,8 @@ var $author$project$Main$newEntry = F2(
 	function (desc, id) {
 		return {completed: false, description: desc, editing: false, id: id};
 	});
+var $gren_lang$core$Platform$Cmd$none = $gren_lang$core$Platform$Cmd$batch(
+	[]);
 var $gren_lang$core$Basics$not = _Basics_not;
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -4726,13 +4835,21 @@ var $author$project$Main$update = F2(
 							entries: A2($gren_lang$core$Array$map, updateEntry, model.entries)
 						})
 				};
-			default:
+			case 'ChangeVisibility':
 				var visibility = msg.a;
 				return {
 					command: $gren_lang$core$Platform$Cmd$none,
 					model: _Utils_update(
 						model,
 						{visibility: visibility})
+				};
+			default:
+				var entries = msg.a;
+				return {
+					command: $gren_lang$core$Platform$Cmd$none,
+					model: _Utils_update(
+						model,
+						{entries: entries})
 				};
 		}
 	});
@@ -4748,6 +4865,14 @@ var $author$project$Main$updateWithStorage = F2(
 			model: updated.model
 		};
 	});
+var $gren_lang$browser$VirtualDom$attribute = F2(
+	function (key, value) {
+		return A2(
+			_VirtualDom_attribute,
+			_VirtualDom_noOnOrFormAction(key),
+			_VirtualDom_noJavaScriptOrHtmlUri(value));
+	});
+var $gren_lang$browser$Html$Attributes$attribute = $gren_lang$browser$VirtualDom$attribute;
 var $gren_lang$browser$VirtualDom$property = F2(
 	function (key, value) {
 		return A2(
@@ -5040,7 +5165,9 @@ var $gren_lang$browser$Html$Events$onDoubleClick = function (msg) {
 		'dblclick',
 		$gren_lang$core$Json$Decode$succeed(msg));
 };
+var $gren_lang$core$Json$Decode$andThen = _Json_andThen;
 var $gren_lang$core$Json$Decode$fail = _Json_fail;
+var $gren_lang$core$Json$Decode$field = _Json_decodeField;
 var $gren_lang$browser$Html$Events$keyCode = A2($gren_lang$core$Json$Decode$field, 'keyCode', $gren_lang$core$Json$Decode$int);
 var $author$project$Main$onEnter = function (msg) {
 	var isEnter = function (code) {
@@ -5266,7 +5393,15 @@ var $author$project$Main$view = function (model) {
 				A3($gren_lang$browser$Html$Lazy$lazy2, $author$project$Main$viewEntries, model.visibility, model.entries),
 				A3($gren_lang$browser$Html$Lazy$lazy2, $author$project$Main$viewControls, model.visibility, model.entries)
 			]),
-			$author$project$Main$infoFooter
+			$author$project$Main$infoFooter,
+			A3(
+			$gren_lang$browser$Html$node,
+			'link',
+			[
+				A2($gren_lang$browser$Html$Attributes$attribute, 'rel', 'stylesheet'),
+				A2($gren_lang$browser$Html$Attributes$attribute, 'href', 'style.css')
+			],
+			[])
 		]);
 };
 var $author$project$Main$main = $gren_lang$browser$Browser$document(
@@ -5286,60 +5421,8 @@ var $author$project$Main$main = $gren_lang$browser$Browser$document(
 		}
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$gren_lang$core$Json$Decode$oneOf(
-		[
-			$gren_lang$core$Json$Decode$null($gren_lang$core$Maybe$Nothing),
-			A2(
-			$gren_lang$core$Json$Decode$map,
-			$gren_lang$core$Maybe$Just,
-			A2(
-				$gren_lang$core$Json$Decode$andThen,
-				function (visibility) {
-					return A2(
-						$gren_lang$core$Json$Decode$andThen,
-						function (uid) {
-							return A2(
-								$gren_lang$core$Json$Decode$andThen,
-								function (field) {
-									return A2(
-										$gren_lang$core$Json$Decode$andThen,
-										function (entries) {
-											return $gren_lang$core$Json$Decode$succeed(
-												{entries: entries, field: field, uid: uid, visibility: visibility});
-										},
-										A2(
-											$gren_lang$core$Json$Decode$field,
-											'entries',
-											$gren_lang$core$Json$Decode$array(
-												A2(
-													$gren_lang$core$Json$Decode$andThen,
-													function (id) {
-														return A2(
-															$gren_lang$core$Json$Decode$andThen,
-															function (editing) {
-																return A2(
-																	$gren_lang$core$Json$Decode$andThen,
-																	function (description) {
-																		return A2(
-																			$gren_lang$core$Json$Decode$andThen,
-																			function (completed) {
-																				return $gren_lang$core$Json$Decode$succeed(
-																					{completed: completed, description: description, editing: editing, id: id});
-																			},
-																			A2($gren_lang$core$Json$Decode$field, 'completed', $gren_lang$core$Json$Decode$bool));
-																	},
-																	A2($gren_lang$core$Json$Decode$field, 'description', $gren_lang$core$Json$Decode$string));
-															},
-															A2($gren_lang$core$Json$Decode$field, 'editing', $gren_lang$core$Json$Decode$bool));
-													},
-													A2($gren_lang$core$Json$Decode$field, 'id', $gren_lang$core$Json$Decode$int)))));
-								},
-								A2($gren_lang$core$Json$Decode$field, 'field', $gren_lang$core$Json$Decode$string));
-						},
-						A2($gren_lang$core$Json$Decode$field, 'uid', $gren_lang$core$Json$Decode$int));
-				},
-				A2($gren_lang$core$Json$Decode$field, 'visibility', $gren_lang$core$Json$Decode$string)))
-		]))(0)}});}(this.module ? this.module.exports : this));
+	$gren_lang$core$Json$Decode$succeed(
+		{}))(0)}});}(this.module ? this.module.exports : this));
 
   var app = Gren.Main.init({ node: document.getElementById("gren") });
 }

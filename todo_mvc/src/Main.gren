@@ -19,9 +19,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy, lazy2)
+import Json.Encode as JE
 import Json.Decode as Json
 import Task
 import Array exposing (Array)
+import LocalStorage
 
 -- main : Program (Maybe Model) Model Msg
 main =
@@ -89,12 +91,61 @@ newEntry desc id =
     }
 
 
-init : Maybe Model -> { model : Model, command : Cmd Msg }
-init maybeModel =
-  { model = Maybe.withDefault emptyModel maybeModel
-  , command = Cmd.none
+entryEncoder : Entry -> JE.Value
+entryEncoder entry =
+    JE.object
+        [ { key = "description", value = JE.string entry.description }
+        , { key = "completed", value = JE.bool entry.completed }
+        , { key = "editing", value = JE.bool entry.editing }
+        , { key = "id", value = JE.int entry.id }
+        ]
+
+
+entryDecoder : Json.Decoder Entry
+entryDecoder =
+    Json.map4
+        (\description completed editing id ->
+            { description = description
+            , completed = completed
+            , editing = editing
+            , id = id
+            }
+        )
+        Json.string
+        Json.bool
+        Json.bool
+        Json.int
+
+
+init : {} -> { model : Model, command : Cmd Msg }
+init _ =
+  { model = emptyModel
+  , command = getStorage
   }
 
+
+setStorage : Model -> Cmd Msg
+setStorage model =
+    let
+        json =
+            JE.encode 0 (JE.array entryEncoder model.entries)
+    in
+    LocalStorage.set "gren-todo-save" json
+        |> Task.attempt (\_ -> NoOp)
+
+
+getStorage : Cmd Msg
+getStorage =
+    LocalStorage.get "gren-todo-save"
+        |> Task.map (Json.decodeString (Json.array entryDecoder))
+        |> Task.attempt (\res ->
+            case res of
+                Ok (Ok entries) ->
+                    LoadedEntries entries
+
+                _ ->
+                    NoOp
+        )
 
 
 -- UPDATE
@@ -115,6 +166,7 @@ type Msg
     | Check Int Bool
     | CheckAll Bool
     | ChangeVisibility String
+    | LoadedEntries (Array Entry)
 
 
 
@@ -206,6 +258,11 @@ update msg model =
             , command = Cmd.none
             }
 
+        LoadedEntries entries ->
+            { model = { model | entries = entries }
+            , command = Cmd.none
+            }
+
 
 
 -- VIEW
@@ -224,6 +281,11 @@ view model =
             , lazy2 viewControls model.visibility model.entries
             ]
         , infoFooter
+        , Html.node "link"
+            [ Html.Attributes.attribute "rel" "stylesheet"
+            , Html.Attributes.attribute "href" "style.css"
+            ]
+            []
         ]
 
 
