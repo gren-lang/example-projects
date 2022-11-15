@@ -1,4 +1,4 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 {-| TodoMVC implemented in Gren, using plain HTML and CSS for rendering.
 
@@ -33,9 +33,6 @@ main =
         }
 
 
-port setStorage : Model -> Cmd msg
-
-
 {-| We want to `setStorage` on every update. This function adds the setStorage
 command for every step of the update function.
 -}
@@ -46,7 +43,10 @@ updateWithStorage msg model =
             update msg model
     in
         { model = updated.model
-        , command = Cmd.batch [ setStorage updated.model, updated.command ]
+        , command = Cmd.batch
+            [ setStorage updated.model
+            , updated.command
+            ]
         }
 
 
@@ -425,8 +425,8 @@ infoFooter =
     footer [ class "info" ]
         [ p [] [ text "Double-click to edit a todo" ]
         , p []
-            [ text "Originally written by " 
-            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"] 
+            [ text "Originally written by "
+            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"]
             , text "in Elm, ported to Gren by the "
             , a [ href "https://github.com/gren-lang" ] [ text "Gren CONTRIBUTORS" ]
             ]
