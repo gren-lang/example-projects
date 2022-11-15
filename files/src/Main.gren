@@ -28,7 +28,7 @@ main =
 type alias Model = Array File
 
 
-init : Unit -> { model : Model, command : Cmd Msg }
+init : {} -> { model : Model, command : Cmd Msg }
 init _ =
   { model = [], command = Cmd.none }
 
@@ -69,8 +69,8 @@ view model =
         , on "change" (D.map GotFiles filesDecoder)
         ]
         []
-    , div 
-        [ id "file-view" ] 
+    , div
+        [ id "file-view" ]
         [ text (Debug.toString model) ]
     ]
 

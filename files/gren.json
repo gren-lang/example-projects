@@ -1,22 +1,17 @@
 {
     "type": "application",
+    "platform": "browser",
     "source-directories": [
         "src"
     ],
-    "gren-version": "0.1.0",
+    "gren-version": "0.2.0",
     "dependencies": {
         "direct": {
-            "gren-lang/browser": "1.0.0",
-            "gren-lang/core": "1.0.0",
-            "gren-lang/file": "1.0.0",
-            "gren-lang/html": "1.0.0",
-            "gren-lang/json": "1.0.0"
+            "gren-lang/browser": "2.0.0",
+            "gren-lang/core": "3.0.0"
         },
         "indirect": {
-            "gren-lang/bytes": "1.0.0",
-            "gren-lang/time": "1.0.0",
-            "gren-lang/url": "1.0.0",
-            "gren-lang/virtual-dom": "1.0.0"
+            "gren-lang/url": "2.0.0"
         }
     },
     "test-dependencies": {
