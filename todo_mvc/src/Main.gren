@@ -8,8 +8,7 @@ This application is broken up into three key parts:
   2. Update - a way to step the application state forward
   3. View   - a way to visualize our application state with HTML
 
-This clean division of concerns is a core part of Gren. You can read more about
-this in <http://guide.elm-lang.org/architecture/index.html>
+This clean division of concerns is a core part of Gren.
 -}
 
 import Browser
@@ -25,7 +24,7 @@ import Task
 import Array exposing (Array)
 import LocalStorage
 
--- main : Program (Maybe Model) Model Msg
+main : Program {} Model Msg
 main =
     Browser.document
         { init = init
@@ -41,6 +40,7 @@ command for every step of the update function.
 updateWithStorage : Msg -> Model -> { model : Model, command : Cmd Msg }
 updateWithStorage msg model =
     case msg of
+        -- Terminate early to avoid setStorage loop
         NoOp ->
             { model = model
             , command = Cmd.none
@@ -52,10 +52,11 @@ updateWithStorage msg model =
                     update msg model
             in
             { model = updated.model
-            , command = Cmd.batch
-                [ setStorage updated.model
-                , updated.command
-                ]
+            , command =
+                Cmd.batch
+                    [ setStorage updated.model
+                    , updated.command
+                    ]
             }
 
 
@@ -146,9 +147,11 @@ getStorage =
     LocalStorage.get "gren-todo-save"
         |> Task.map (Json.decodeString (Json.array entryDecoder))
         |> Task.attempt (\res ->
+            -- If there is any error at all, we ignore it.
+            -- A correct model will be set once the model changes.
             case res of
                 Ok (Ok entries) ->
-                    LoadedEntries entries
+                    LoadedEntriesFromStorage entries
 
                 _ ->
                     NoOp
@@ -173,7 +176,7 @@ type Msg
     | Check Int Bool
     | CheckAll Bool
     | ChangeVisibility String
-    | LoadedEntries (Array Entry)
+    | LoadedEntriesFromStorage (Array Entry)
 
 
 
@@ -265,7 +268,7 @@ update msg model =
             , command = Cmd.none
             }
 
-        LoadedEntries entries ->
+        LoadedEntriesFromStorage entries ->
             { model = { model | entries = entries }
             , command = Cmd.none
             }
@@ -281,18 +284,18 @@ view model =
         [ class "todomvc-wrapper"
         , style "visibility" "hidden"
         ]
-        [ section
+        [ node "link"
+            [ attribute "rel" "stylesheet"
+            , attribute "href" "style.css"
+            ]
+            []
+        , section
             [ class "todoapp" ]
             [ lazy viewInput model.field
             , lazy2 viewEntries model.visibility model.entries
             , lazy2 viewControls model.visibility model.entries
             ]
         , infoFooter
-        , Html.node "link"
-            [ Html.Attributes.attribute "rel" "stylesheet"
-            , Html.Attributes.attribute "href" "style.css"
-            ]
-            []
         ]
 
 

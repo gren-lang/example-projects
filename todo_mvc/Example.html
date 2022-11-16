@@ -4545,8 +4545,8 @@ var $author$project$Main$emptyModel = {
 	uid: 0,
 	visibility: 'All'
 };
-var $author$project$Main$LoadedEntries = function (a) {
-	return {$: 'LoadedEntries', a: a};
+var $author$project$Main$LoadedEntriesFromStorage = function (a) {
+	return {$: 'LoadedEntriesFromStorage', a: a};
 };
 var $author$project$Main$NoOp = {$: 'NoOp'};
 var $gren_lang$core$Json$Decode$array = _Json_decodeArray;
@@ -4604,7 +4604,7 @@ var $author$project$Main$getStorage = A2(
 	function (res) {
 		if ((res.$ === 'Ok') && (res.a.$ === 'Ok')) {
 			var entries = res.a.a;
-			return $author$project$Main$LoadedEntries(entries);
+			return $author$project$Main$LoadedEntriesFromStorage(entries);
 		} else {
 			return $author$project$Main$NoOp;
 		}
@@ -5387,6 +5387,14 @@ var $author$project$Main$view = function (model) {
 			A2($gren_lang$browser$Html$Attributes$style, 'visibility', 'hidden')
 		],
 		[
+			A3(
+			$gren_lang$browser$Html$node,
+			'link',
+			[
+				A2($gren_lang$browser$Html$Attributes$attribute, 'rel', 'stylesheet'),
+				A2($gren_lang$browser$Html$Attributes$attribute, 'href', 'style.css')
+			],
+			[]),
 			A2(
 			$gren_lang$browser$Html$section,
 			[
@@ -5397,15 +5405,7 @@ var $author$project$Main$view = function (model) {
 				A3($gren_lang$browser$Html$Lazy$lazy2, $author$project$Main$viewEntries, model.visibility, model.entries),
 				A3($gren_lang$browser$Html$Lazy$lazy2, $author$project$Main$viewControls, model.visibility, model.entries)
 			]),
-			$author$project$Main$infoFooter,
-			A3(
-			$gren_lang$browser$Html$node,
-			'link',
-			[
-				A2($gren_lang$browser$Html$Attributes$attribute, 'rel', 'stylesheet'),
-				A2($gren_lang$browser$Html$Attributes$attribute, 'href', 'style.css')
-			],
-			[])
+			$author$project$Main$infoFooter
 		]);
 };
 var $author$project$Main$main = $gren_lang$browser$Browser$document(
