@@ -4576,6 +4576,7 @@ var $gren_lang$core$Task$attempt = F2(
 	});
 var $gren_lang$core$Json$Decode$decodeString = _Json_runOnString;
 var $gren_lang$core$Json$Decode$bool = _Json_decodeBool;
+var $gren_lang$core$Json$Decode$field = _Json_decodeField;
 var $gren_lang$core$Json$Decode$int = _Json_decodeInt;
 var $gren_lang$core$Json$Decode$map4 = _Json_map4;
 var $gren_lang$core$Json$Decode$string = _Json_decodeString;
@@ -4585,10 +4586,10 @@ var $author$project$Main$entryDecoder = A5(
 		function (description, completed, editing, id) {
 			return {completed: completed, description: description, editing: editing, id: id};
 		}),
-	$gren_lang$core$Json$Decode$string,
-	$gren_lang$core$Json$Decode$bool,
-	$gren_lang$core$Json$Decode$bool,
-	$gren_lang$core$Json$Decode$int);
+	A2($gren_lang$core$Json$Decode$field, 'description', $gren_lang$core$Json$Decode$string),
+	A2($gren_lang$core$Json$Decode$field, 'completed', $gren_lang$core$Json$Decode$bool),
+	A2($gren_lang$core$Json$Decode$field, 'editing', $gren_lang$core$Json$Decode$bool),
+	A2($gren_lang$core$Json$Decode$field, 'id', $gren_lang$core$Json$Decode$int));
 var $gren_lang$web_storage$WebStorage$AccessError = {$: 'AccessError'};
 var $gren_lang$web_storage$WebStorage$NoValue = {$: 'NoValue'};
 var $gren_lang$web_storage$WebStorage$QuotaExceeded = {$: 'QuotaExceeded'};
@@ -4620,6 +4621,8 @@ var $gren_lang$core$Platform$Sub$batch = _Platform_batch;
 var $gren_lang$core$Platform$Sub$none = $gren_lang$core$Platform$Sub$batch(
 	[]);
 var $gren_lang$core$Platform$Cmd$batch = _Platform_batch;
+var $gren_lang$core$Platform$Cmd$none = $gren_lang$core$Platform$Cmd$batch(
+	[]);
 var $gren_lang$core$Json$Encode$array = F2(
 	function (func, entries) {
 		return _Json_wrap(
@@ -4702,8 +4705,6 @@ var $author$project$Main$newEntry = F2(
 	function (desc, id) {
 		return {completed: false, description: desc, editing: false, id: id};
 	});
-var $gren_lang$core$Platform$Cmd$none = $gren_lang$core$Platform$Cmd$batch(
-	[]);
 var $gren_lang$core$Basics$not = _Basics_not;
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -4855,15 +4856,19 @@ var $author$project$Main$update = F2(
 	});
 var $author$project$Main$updateWithStorage = F2(
 	function (msg, model) {
-		var updated = A2($author$project$Main$update, msg, model);
-		return {
-			command: $gren_lang$core$Platform$Cmd$batch(
-				[
-					$author$project$Main$setStorage(updated.model),
-					updated.command
-				]),
-			model: updated.model
-		};
+		if (msg.$ === 'NoOp') {
+			return {command: $gren_lang$core$Platform$Cmd$none, model: model};
+		} else {
+			var updated = A2($author$project$Main$update, msg, model);
+			return {
+				command: $gren_lang$core$Platform$Cmd$batch(
+					[
+						$author$project$Main$setStorage(updated.model),
+						updated.command
+					]),
+				model: updated.model
+			};
+		}
 	});
 var $gren_lang$browser$VirtualDom$attribute = F2(
 	function (key, value) {
@@ -5167,7 +5172,6 @@ var $gren_lang$browser$Html$Events$onDoubleClick = function (msg) {
 };
 var $gren_lang$core$Json$Decode$andThen = _Json_andThen;
 var $gren_lang$core$Json$Decode$fail = _Json_fail;
-var $gren_lang$core$Json$Decode$field = _Json_decodeField;
 var $gren_lang$browser$Html$Events$keyCode = A2($gren_lang$core$Json$Decode$field, 'keyCode', $gren_lang$core$Json$Decode$int);
 var $author$project$Main$onEnter = function (msg) {
 	var isEnter = function (code) {

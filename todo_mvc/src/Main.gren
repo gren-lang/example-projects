@@ -40,16 +40,23 @@ command for every step of the update function.
 -}
 updateWithStorage : Msg -> Model -> { model : Model, command : Cmd Msg }
 updateWithStorage msg model =
-    let
-        updated =
-            update msg model
-    in
-        { model = updated.model
-        , command = Cmd.batch
-            [ setStorage updated.model
-            , updated.command
-            ]
-        }
+    case msg of
+        NoOp ->
+            { model = model
+            , command = Cmd.none
+            }
+
+        _ ->
+            let
+                updated =
+                    update msg model
+            in
+            { model = updated.model
+            , command = Cmd.batch
+                [ setStorage updated.model
+                , updated.command
+                ]
+            }
 
 
 
@@ -111,10 +118,10 @@ entryDecoder =
             , id = id
             }
         )
-        Json.string
-        Json.bool
-        Json.bool
-        Json.int
+        (Json.field "description" Json.string)
+        (Json.field "completed" Json.bool)
+        (Json.field "editing" Json.bool)
+        (Json.field "id" Json.int)
 
 
 init : {} -> { model : Model, command : Cmd Msg }
