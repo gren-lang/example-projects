@@ -51,11 +51,15 @@ type alias Model =
 init : Model
 init  =
     let
-        date = Date.fromCalendarDate 2022 (Date.numberToMonth 6) 14
+        date =
+            { year = 2022
+            , month = 6
+            , day = 14
+            }
     in
     { flightType = OneWay
-    , input1 = Date.format "dd.MM.yyyy" date
-    , input2 = Date.format "dd.MM.yyyy" date
+    , input1 = formatDate date
+    , input2 = formatDate date
     , date1 = Just date
     , date2 = Just date
     }
@@ -157,6 +161,61 @@ bookButton { isDisabled } =
 
 -- Helper functions
 
+
+type alias Date =
+    { day : Int
+    , month : Int
+    , year : Int
+    }
+
+
+parseDate : String -> Maybe Date
+parseDate dateString =
+    if String.length dateString /= 10 then
+        Nothing
+    else
+        let
+            parts =
+                dateString
+                    |> String.split "."
+                    |> Array.filterMap String.toInt
+        in
+        case parts of
+            [ day, month, year ] ->
+                Just
+                    { day = day
+                    , month = month
+                    , year = year
+                    }
+
+            _ ->
+                Nothing
+
+
+formatDate : Date -> String
+formatDate date =
+    String.fromInt date.day
+        ++ "."
+        ++ String.fromInt date.month
+        ++ "."
+        ++ String.fromInt date.year
+
+
+compareDate : Date -> Date -> Order
+compareDate date1 date2 =
+    case compare date1.year date2.year of
+        EQ ->
+            case compare date1.month date2.month of
+                EQ ->
+                    compare date1.day date2.day
+
+                monthComparison ->
+                    monthComparison
+
+        yearComparison ->
+            yearComparison
+
+
 checkIfDisabled : FlightType -> Maybe Date -> Maybe Date -> Bool
 checkIfDisabled flightType maybeDate1 maybeDate2 =
     case flightType of
@@ -166,7 +225,7 @@ checkIfDisabled flightType maybeDate1 maybeDate2 =
         ReturnFlight ->
             let
                 compare =
-                    Maybe.map2 (\date1 date2 -> Date.compare date1 date2)
+                    Maybe.map2 compareDate
                         maybeDate1
                         maybeDate2
             in
@@ -177,14 +236,3 @@ checkIfDisabled flightType maybeDate1 maybeDate2 =
                     _ ->
                         False
 
-
-parseDate : String -> Maybe Date
-parseDate dateString =
-    if String.length dateString /= 10 then
-        Nothing
-    else
-        String.split "." dateString
-            |> Array.reverse
-            |> String.join "-"
-            |> Date.fromIsoString
-            |> Result.toMaybe

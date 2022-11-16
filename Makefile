@@ -1,12 +1,12 @@
 all_examples := counter\
 			files\
+			flight_booker\
 			hello_world\
 			temperature_converter\
 			timer\
 			local_storage\
 			todo_mvc
 
-# flight_booker
 project_caches := $(foreach project, $(all_examples), $(project)/.gren)
 
 
