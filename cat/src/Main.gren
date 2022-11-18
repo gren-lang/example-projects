@@ -1,0 +1,75 @@
+module Main exposing (main)
+
+import Node
+import Bytes exposing (Bytes)
+import Bytes.Encode as BE
+import Stream exposing (Stream)
+import Node.Program as Program exposing (Program)
+import FileSystem
+import Task
+
+
+main : Program Model Msg
+main =
+    Program.define
+        { init = init
+        , update = update
+        , subscriptions = \_ -> Sub.none
+        }
+
+
+type alias Model =
+    { stdout : Stream }
+
+
+type Msg
+    = OpenResult (Result FileSystem.AccessError (FileSystem.ReadableFileHandle Never))
+    | ReadResult (Result FileSystem.UnknownFileSystemError Bytes)
+
+
+init : Program.AppInitTask { model : Model, command : Cmd Msg }
+init =
+    Program.await Node.initialize <| \nodeConfig ->
+        Program.await FileSystem.initialize <| \fsPermission ->
+            Program.startProgram
+                { model =
+                    { stdout = nodeConfig.stdout
+                    }
+                , command =
+                    case nodeConfig.args of
+                        [ _, _, file ] ->
+                            FileSystem.openForRead fsPermission file
+                                |> Task.attempt OpenResult
+
+                        _ ->
+                            Stream.send nodeConfig.stderr <|
+                                BE.encode <|
+                                    BE.string "Exactly one argument is required: the file name to read\n"
+                }
+
+
+update : Msg -> Model -> { model : Model, command : Cmd Msg }
+update msg model =
+    case msg of
+        OpenResult (Ok fh) ->
+            { model = model
+            , command =
+                FileSystem.read fh
+                    |> Task.attempt ReadResult
+            }
+
+        OpenResult (Err error) ->
+            { model = model
+            , command = Cmd.none
+            }
+
+        ReadResult (Ok bytes) ->
+            { model = model
+            , command = Stream.send model.stdout bytes
+            }
+
+        ReadResult (Err error) ->
+            { model = model
+            , command = Cmd.none
+            }
+

@@ -1,4 +1,5 @@
 .gren
+app
 node_modules
 
 .idea
