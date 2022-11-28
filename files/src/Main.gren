@@ -1,7 +1,7 @@
-module Main exposing (main)
+module Main exposing ( main )
 
 import Browser
-import File exposing (File)
+import File exposing ( File )
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -13,24 +13,31 @@ import Json.Decode as D
 
 
 main =
-  Browser.element
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
-    }
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 
 -- MODEL
 
 
-type alias Model = Array File
+type alias Model =
+    Array File
 
 
-init : {} -> { model : Model, command : Cmd Msg }
+init :
+    {}
+    -> { model : Model
+       , command : Cmd Msg
+       }
 init _ =
-  { model = [], command = Cmd.none }
+    { model = []
+    , command = Cmd.none
+    }
 
 
 
@@ -38,13 +45,15 @@ init _ =
 
 
 type Msg
-  = GotFiles (Array File)
+    = GotFiles (Array File)
 
 
 update msg model =
-  case msg of
-    GotFiles files ->
-      { model = files, command = Cmd.none }
+    case msg of
+        GotFiles files ->
+            { model = files
+            , command = Cmd.none
+            }
 
 
 
@@ -53,7 +62,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.none
+    Sub.none
 
 
 
@@ -62,19 +71,26 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-  div []
-    [ input
-        [ type_ "file"
-        , multiple True
-        , on "change" (D.map GotFiles filesDecoder)
-        ]
+    div
         []
-    , div
-        [ id "file-view" ]
-        [ text (Debug.toString model) ]
-    ]
+        [ input
+            [ type_ "file"
+            , multiple True
+            , on "change" (D.map GotFiles filesDecoder)
+            ]
+            []
+        , div
+            [ id "file-view"
+            ]
+            [ text (Debug.toString model)
+            ]
+        ]
 
 
 filesDecoder : D.Decoder (Array File)
 filesDecoder =
-  D.at ["target","files"] (D.array File.decoder)
+    D.at
+        [ "target"
+        , "files"
+        ]
+        (D.array File.decoder)

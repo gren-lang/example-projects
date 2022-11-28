@@ -17,18 +17,24 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed as Keyed
-import Html.Lazy exposing (lazy, lazy2)
-import Json.Encode as JE
+import Html.Lazy exposing ( lazy, lazy2 )
 import Json.Decode as Json
-import Task
-import Array exposing (Array)
+import Json.Encode as JE
 import LocalStorage
+import Task
+
 
 main : Program {} Model Msg
 main =
     Browser.document
         { init = init
-        , view = \model -> { title = "Gren • TodoMVC", body = [view model] }
+        , view =
+            \model ->
+                { title = "Gren • TodoMVC"
+                , body =
+                    [ view model
+                    ]
+                }
         , update = updateWithStorage
         , subscriptions = \_ -> Sub.none
         }
@@ -37,7 +43,12 @@ main =
 {-| We want to `setStorage` on every update. This function adds the setStorage
 command for every step of the update function.
 -}
-updateWithStorage : Msg -> Model -> { model : Model, command : Cmd Msg }
+updateWithStorage :
+    Msg
+    -> Model
+    -> { model : Model
+       , command : Cmd Msg
+       }
 updateWithStorage msg model =
     case msg of
         -- Terminate early to avoid setStorage loop
@@ -62,9 +73,9 @@ updateWithStorage msg model =
 
 
 -- MODEL
-
-
 -- The full application state of our todo app.
+
+
 type alias Model =
     { entries : Array Entry
     , field : String
@@ -102,10 +113,18 @@ newEntry desc id =
 entryEncoder : Entry -> JE.Value
 entryEncoder entry =
     JE.object
-        [ { key = "description", value = JE.string entry.description }
-        , { key = "completed", value = JE.bool entry.completed }
-        , { key = "editing", value = JE.bool entry.editing }
-        , { key = "id", value = JE.int entry.id }
+        [ { key = "description"
+          , value = JE.string entry.description
+          }
+        , { key = "completed"
+          , value = JE.bool entry.completed
+          }
+        , { key = "editing"
+          , value = JE.bool entry.editing
+          }
+        , { key = "id"
+          , value = JE.int entry.id
+          }
         ]
 
 
@@ -125,11 +144,15 @@ entryDecoder =
         (Json.field "id" Json.int)
 
 
-init : {} -> { model : Model, command : Cmd Msg }
+init :
+    {}
+    -> { model : Model
+       , command : Cmd Msg
+       }
 init _ =
-  { model = emptyModel
-  , command = getStorage
-  }
+    { model = emptyModel
+    , command = getStorage
+    }
 
 
 setStorage : Model -> Cmd Msg
@@ -146,16 +169,18 @@ getStorage : Cmd Msg
 getStorage =
     LocalStorage.get "gren-todo-save"
         |> Task.map (Json.decodeString (Json.array entryDecoder))
-        |> Task.attempt (\res ->
-            -- If there is any error at all, we ignore it.
-            -- A correct model will be set once the model changes.
-            case res of
-                Ok (Ok entries) ->
-                    LoadedEntriesFromStorage entries
+        |> Task.attempt
+                (\res ->
+                    -- If there is any error at all, we ignore it.
+                    -- A correct model will be set once the model changes.
+                    case res of
+                        Ok (Ok entries) ->
+                            LoadedEntriesFromStorage entries
 
-                _ ->
-                    NoOp
-        )
+                        _ ->
+                            NoOp
+                )
+
 
 
 -- UPDATE
@@ -181,22 +206,34 @@ type Msg
 
 
 -- How we update our Model on a given Msg?
-update : Msg -> Model -> { model : Model, command : Cmd Msg }
+
+
+update :
+    Msg
+    -> Model
+    -> { model : Model
+       , command : Cmd Msg
+       }
 update msg model =
     case msg of
         NoOp ->
-            { model = model, command = Cmd.none }
+            { model = model
+            , command = Cmd.none
+            }
 
         Add ->
-            { model = { model
-                | uid = model.uid + 1
-                , field = ""
-                , entries =
-                    if String.isEmpty model.field then
-                        model.entries
-                    else
-                        model.entries ++ [ newEntry model.field model.uid ]
-              }
+            { model =
+                { model
+                    | uid = model.uid + 1
+                    , field = ""
+                    , entries =
+                        if String.isEmpty model.field then
+                            model.entries
+                        else
+                            model.entries
+                                ++ [ newEntry model.field model.uid
+                                    ]
+                }
             , command = Cmd.none
             }
 
@@ -284,13 +321,15 @@ view model =
         [ class "todomvc-wrapper"
         , style "visibility" "hidden"
         ]
-        [ node "link"
+        [ node
+            "link"
             [ attribute "rel" "stylesheet"
             , attribute "href" "style.css"
             ]
             []
         , section
-            [ class "todoapp" ]
+            [ class "todoapp"
+            ]
             [ lazy viewInput model.field
             , lazy2 viewEntries model.visibility model.entries
             , lazy2 viewControls model.visibility model.entries
@@ -302,8 +341,12 @@ view model =
 viewInput : String -> Html Msg
 viewInput task =
     header
-        [ class "header" ]
-        [ h1 [] [ text "todos" ]
+        [ class "header"
+        ]
+        [ h1
+            []
+            [ text "todos"
+            ]
         , input
             [ class "new-todo"
             , placeholder "What needs to be done?"
@@ -326,7 +369,7 @@ onEnter msg =
             else
                 Json.fail "not ENTER"
     in
-        on "keydown" (Json.andThen isEnter keyCode)
+    on "keydown" (Json.andThen isEnter keyCode)
 
 
 
@@ -356,42 +399,67 @@ viewEntries visibility entries =
             else
                 "visible"
     in
-        section
-            [ class "main"
-            , style "visibility" cssVisibility
+    section
+        [ class "main"
+        , style "visibility" cssVisibility
+        ]
+        [ input
+            [ class "toggle-all"
+            , type_ "checkbox"
+            , name "toggle"
+            , checked allCompleted
+            , onClick (CheckAll (not allCompleted))
             ]
-            [ input
-                [ class "toggle-all"
-                , type_ "checkbox"
-                , name "toggle"
-                , checked allCompleted
-                , onClick (CheckAll (not allCompleted))
-                ]
-                []
-            , label
-                [ for "toggle-all" ]
-                [ text "Mark all as complete" ]
-            , Keyed.ul [ class "todo-list" ]
-                <| Array.map (\entry -> { key = entry.id, node = entry.message })
-                <| Array.map viewKeyedEntry <| (Array.filter isVisible entries)
+            []
+        , label
+            [ for "toggle-all"
             ]
+            [ text "Mark all as complete"
+            ]
+        , Keyed.ul
+            [ class "todo-list"
+            ]
+            <| Array.map
+                    (\entry ->
+                        { key = entry.id
+                        , node = entry.message
+                        }
+                    )
+            <| Array.map viewKeyedEntry
+            <| Array.filter isVisible entries
+        ]
 
 
 
 -- VIEW INDIVIDUAL ENTRIES
 
 
-viewKeyedEntry : Entry -> { id : String, message : Html Msg }
+viewKeyedEntry :
+    Entry
+    -> { id : String
+       , message : Html Msg
+       }
 viewKeyedEntry todo =
-    { id = String.fromInt todo.id, message = lazy viewEntry todo }
+    { id = String.fromInt todo.id
+    , message = lazy viewEntry todo
+    }
 
 
 viewEntry : Entry -> Html Msg
 viewEntry todo =
     li
-        [ classList [ { class = "completed", enabled = todo.completed }, { class = "editing", enabled = todo.editing } ] ]
+        [ classList
+            [ { class = "completed"
+              , enabled = todo.completed
+              }
+            , { class = "editing"
+              , enabled = todo.editing
+              }
+            ]
+        ]
         [ div
-            [ class "view" ]
+            [ class "view"
+            ]
             [ input
                 [ class "toggle"
                 , type_ "checkbox"
@@ -400,8 +468,10 @@ viewEntry todo =
                 ]
                 []
             , label
-                [ onDoubleClick (EditingEntry todo.id True) ]
-                [ text todo.description ]
+                [ onDoubleClick (EditingEntry todo.id True)
+                ]
+                [ text todo.description
+                ]
             , button
                 [ class "destroy"
                 , onClick (Delete todo.id)
@@ -434,14 +504,14 @@ viewControls visibility entries =
         entriesLeft =
             Array.length entries - entriesCompleted
     in
-        footer
-            [ class "footer"
-            , hidden (Array.isEmpty entries)
-            ]
-            [ lazy viewControlsCount entriesLeft
-            , lazy viewControlsFilters visibility
-            , lazy viewControlsClear entriesCompleted
-            ]
+    footer
+        [ class "footer"
+        , hidden (Array.isEmpty entries)
+        ]
+        [ lazy viewControlsCount entriesLeft
+        , lazy viewControlsFilters visibility
+        , lazy viewControlsClear entriesCompleted
+        ]
 
 
 viewControlsCount : Int -> Html Msg
@@ -453,17 +523,22 @@ viewControlsCount entriesLeft =
             else
                 " items"
     in
-        span
-            [ class "todo-count" ]
-            [ strong [] [ text (String.fromInt entriesLeft) ]
-            , text (item_ ++ " left")
+    span
+        [ class "todo-count"
+        ]
+        [ strong
+            []
+            [ text (String.fromInt entriesLeft)
             ]
+        , text (item_ ++ " left")
+        ]
 
 
 viewControlsFilters : String -> Html Msg
 viewControlsFilters visibility =
     ul
-        [ class "filters" ]
+        [ class "filters"
+        ]
         [ visibilitySwap "#/" "All" visibility
         , text " "
         , visibilitySwap "#/active" "Active" visibility
@@ -475,9 +550,18 @@ viewControlsFilters visibility =
 visibilitySwap : String -> String -> String -> Html Msg
 visibilitySwap uri visibility actualVisibility =
     li
-        [ onClick (ChangeVisibility visibility) ]
-        [ a [ href uri, classList [ { class = "selected", enabled = visibility == actualVisibility } ] ]
-            [ text visibility ]
+        [ onClick (ChangeVisibility visibility)
+        ]
+        [ a
+            [ href uri
+            , classList
+                [ { class = "selected"
+                  , enabled = visibility == actualVisibility
+                  }
+                ]
+            ]
+            [ text visibility
+            ]
         ]
 
 
@@ -494,16 +578,35 @@ viewControlsClear entriesCompleted =
 
 infoFooter : Html msg
 infoFooter =
-    footer [ class "info" ]
-        [ p [] [ text "Double-click to edit a todo" ]
-        , p []
-            [ text "Originally written by "
-            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"]
-            , text "in Elm, ported to Gren by the "
-            , a [ href "https://github.com/gren-lang" ] [ text "Gren CONTRIBUTORS" ]
+    footer
+        [ class "info"
+        ]
+        [ p
+            []
+            [ text "Double-click to edit a todo"
             ]
-        , p []
+        , p
+            []
+            [ text "Originally written by "
+            , a
+                [ href "https://github.com/evancz"
+                ]
+                [ text "Evan Czaplici"
+                ]
+            , text "in Elm, ported to Gren by the "
+            , a
+                [ href "https://github.com/gren-lang"
+                ]
+                [ text "Gren CONTRIBUTORS"
+                ]
+            ]
+        , p
+            []
             [ text "Part of "
-            , a [ href "http://todomvc.com" ] [ text "TodoMVC" ]
+            , a
+                [ href "http://todomvc.com"
+                ]
+                [ text "TodoMVC"
+                ]
             ]
         ]

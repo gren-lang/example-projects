@@ -1,9 +1,9 @@
-module Main exposing (main)
+module Main exposing ( main )
 
 import Browser
-import Html exposing (Html, text, div, input, button, select, option)
-import Html.Attributes exposing (id, style, value, disabled)
-import Html.Events as Event exposing (onInput)
+import Html exposing ( Html, text, div, input, button, select, option )
+import Html.Attributes exposing ( id, style, value, disabled )
+import Html.Events as Event exposing ( onInput )
 import Task
 
 
@@ -26,6 +26,7 @@ flightTypeToString flightType =
     case flightType of
         OneWay ->
             "One-way flight"
+
         ReturnFlight ->
             "Return flight"
 
@@ -35,21 +36,22 @@ flightTypeFromString str =
     case str of
         "Return flight" ->
             ReturnFlight
+
         _ ->
             OneWay
 
 
 type alias Model =
     { flightType : FlightType
-    , input1: String
-    , input2: String
+    , input1 : String
+    , input2 : String
     , date1 : Maybe Date
     , date2 : Maybe Date
     }
 
 
 init : Model
-init  =
+init =
     let
         date =
             { year = 2022
@@ -78,17 +80,21 @@ update msg model =
             { model | flightType = flightTypeFromString asString }
 
         Input1Changed str ->
-            { model | input1 = str
-                    , date1 = parseDate str
+            { model
+                | input1 = str
+                , date1 = parseDate str
             }
 
         Input2Changed str ->
-            { model | input2 = str
-                    , date2 = parseDate str
+            { model
+                | input2 = str
+                , date2 = parseDate str
             }
 
 
+
 -- VIEW
+
 
 view : Model -> Html Msg
 view model =
@@ -114,48 +120,66 @@ view model =
             , isDisabled = model.flightType == OneWay
             }
         , bookButton
-            { isDisabled = checkIfDisabled model.flightType model.date1 model.date2 }
+            { isDisabled = checkIfDisabled model.flightType model.date1 model.date2
+            }
         ]
 
 
 flightTypeSelector : Html Msg
 flightTypeSelector =
-     select
+    select
         [ id "flight-type"
         , onInput FlightTypeChanged
         ]
-        [ option [] [ text ( flightTypeToString OneWay ) ]
-        , option [] [ text ( flightTypeToString ReturnFlight ) ]
+        [ option
+            []
+            [ text (flightTypeToString OneWay)
+            ]
+        , option
+            []
+            [ text (flightTypeToString ReturnFlight)
+            ]
         ]
 
 
 type alias DateInputConfig =
-    { id: String
-    , value: String
-    , date: Maybe Date
-    , changeMsg: String -> Msg
-    , isDisabled: Bool
+    { id : String
+    , value : String
+    , date : Maybe Date
+    , changeMsg : String -> Msg
+    , isDisabled : Bool
     }
 
-dateInput: DateInputConfig -> Html Msg
+
+dateInput : DateInputConfig -> Html Msg
 dateInput { id = id_, value = value_, date, changeMsg, isDisabled } =
     input
         [ id id_
         , value value_
         , onInput changeMsg
         , disabled isDisabled
-        , style "background-color" ( if date == Nothing then "red" else "white" )
+        , style
+            "background-color"
+            (if date == Nothing then
+                "red"
+             else
+                "white"
+            )
         ]
         []
 
 
-bookButton : { isDisabled : Bool } -> Html Msg
+bookButton :
+    { isDisabled : Bool
+    }
+    -> Html Msg
 bookButton { isDisabled } =
     button
         [ id "book"
         , disabled isDisabled
         ]
-        [ text "Book" ]
+        [ text "Book"
+        ]
 
 
 
@@ -194,11 +218,7 @@ parseDate dateString =
 
 formatDate : Date -> String
 formatDate date =
-    String.fromInt date.day
-        ++ "."
-        ++ String.fromInt date.month
-        ++ "."
-        ++ String.fromInt date.year
+    String.fromInt date.day ++ "." ++ String.fromInt date.month ++ "." ++ String.fromInt date.year
 
 
 compareDate : Date -> Date -> Order
@@ -225,14 +245,11 @@ checkIfDisabled flightType maybeDate1 maybeDate2 =
         ReturnFlight ->
             let
                 compare =
-                    Maybe.map2 compareDate
-                        maybeDate1
-                        maybeDate2
+                    Maybe.map2 compareDate maybeDate1 maybeDate2
             in
-                case compare of
-                    Just GT ->
-                        True
+            case compare of
+                Just GT ->
+                    True
 
-                    _ ->
-                        False
-
+                _ ->
+                    False

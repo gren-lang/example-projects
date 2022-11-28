@@ -1,11 +1,11 @@
-module Main exposing (main)
+module Main exposing ( main )
 
-import Node
-import Bytes exposing (Bytes)
+import Bytes exposing ( Bytes )
 import Bytes.Encode as BE
-import Stream exposing (Stream)
-import Node.Program as Program exposing (Program)
 import FileSystem
+import Node
+import Node.Program as Program exposing ( Program )
+import Stream exposing ( Stream )
 import Task
 
 
@@ -19,7 +19,8 @@ main =
 
 
 type alias Model =
-    { stdout : Stream }
+    { stdout : Stream
+    }
 
 
 type Msg
@@ -27,28 +28,41 @@ type Msg
     | ReadResult (Result FileSystem.UnknownFileSystemError Bytes)
 
 
-init : Program.AppInitTask { model : Model, command : Cmd Msg }
+init :
+    Program.AppInitTask
+        { model : Model
+        , command : Cmd Msg
+        }
 init =
-    Program.await Node.initialize <| \nodeConfig ->
-        Program.await FileSystem.initialize <| \fsPermission ->
-            Program.startProgram
-                { model =
-                    { stdout = nodeConfig.stdout
-                    }
-                , command =
-                    case nodeConfig.args of
-                        [ _, _, file ] ->
-                            FileSystem.openForRead fsPermission file
-                                |> Task.attempt OpenResult
+    Program.await Node.initialize
+        <| (\nodeConfig ->
+                Program.await FileSystem.initialize
+                    <| (\fsPermission ->
+                            Program.startProgram
+                                { model =
+                                    { stdout = nodeConfig.stdout
+                                    }
+                                , command =
+                                    case nodeConfig.args of
+                                        [ _, _, file ] ->
+                                            FileSystem.openForRead fsPermission file
+                                                |> Task.attempt OpenResult
 
-                        _ ->
-                            Stream.send nodeConfig.stderr <|
-                                BE.encode <|
-                                    BE.string "Exactly one argument is required: the file name to read\n"
-                }
+                                        _ ->
+                                            Stream.send nodeConfig.stderr
+                                                <| BE.encode
+                                                <| BE.string "Exactly one argument is required: the file name to read\n"
+                                }
+                        )
+            )
 
 
-update : Msg -> Model -> { model : Model, command : Cmd Msg }
+update :
+    Msg
+    -> Model
+    -> { model : Model
+       , command : Cmd Msg
+       }
 update msg model =
     case msg of
         OpenResult (Ok fh) ->
@@ -72,4 +86,3 @@ update msg model =
             { model = model
             , command = Cmd.none
             }
-
