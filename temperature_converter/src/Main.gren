@@ -1,7 +1,7 @@
-module Main exposing (main)
+module Main exposing ( main )
 
 import Browser
-import Html exposing (Html)
+import Html exposing ( Html )
 import Html.Attributes as Attribute
 import Html.Events as Event
 
@@ -14,7 +14,8 @@ main =
         }
 
 
---- MODEL
+
+-- - MODEL
 
 
 type alias Model =
@@ -24,13 +25,14 @@ type alias Model =
 
 
 init : Model
-init = 
+init =
     { celsius = ""
     , fahrenheit = ""
     }
 
 
---- UPDATE
+
+-- - UPDATE
 
 
 type Msg
@@ -43,9 +45,9 @@ update msg model =
     case msg of
         SetCelsius value ->
             { celsius = value
-            , fahrenheit = 
+            , fahrenheit =
                 value
-                    |> String.toFloat 
+                    |> String.toFloat
                     |> Maybe.map celsiusToFahrenheit
                     |> Maybe.map String.fromFloat
                     |> Maybe.withDefault model.fahrenheit
@@ -53,7 +55,7 @@ update msg model =
 
         SetFahrenheit value ->
             { fahrenheit = value
-            , celsius = 
+            , celsius =
                 value
                     |> String.toFloat
                     |> Maybe.map fahrenheitToCelsius
@@ -64,30 +66,32 @@ update msg model =
 
 celsiusToFahrenheit : Float -> Float
 celsiusToFahrenheit c =
-    c * (9.0/5.0) + 32.0
+    c * (9.0 / 5.0) + 32.0
 
 
 fahrenheitToCelsius : Float -> Float
 fahrenheitToCelsius f =
-    (f - 32) * (5.0/9.0)
+    (f - 32) * (5.0 / 9.0)
 
 
---- VIEW
+
+-- - VIEW
 
 
 view : Model -> Html Msg
-view model = 
-    Html.div []
-        [ Html.input 
+view model =
+    Html.div
+        []
+        [ Html.input
             [ Attribute.id "celsius"
             , Event.onInput SetCelsius
             , Attribute.value model.celsius
-            ] 
+            ]
             []
         , Html.text "Celsius"
-        , Html.input 
+        , Html.input
             [ Attribute.id "fahrenheit"
-            , Event.onInput SetFahrenheit 
+            , Event.onInput SetFahrenheit
             , Attribute.value model.fahrenheit
             ]
             []

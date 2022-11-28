@@ -1,8 +1,11 @@
-module Main exposing (main)
+module Main exposing ( main )
 
-import Html exposing (Html, div)
+import Html exposing ( Html, div )
+
 
 main : Html a
 main =
-    div []
-        [ Html.text "Hello, world!" ]
+    div
+        []
+        [ Html.text "Hello, world!"
+        ]

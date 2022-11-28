@@ -1,12 +1,13 @@
-module Main exposing (main)
+module Main exposing ( main )
 
 import Browser
-import Html exposing (Html)
-import Html.Events as Events
+import Html exposing ( Html )
 import Html.Attributes as Attributes
-import WebStorage
+import Html.Events as Events
 import LocalStorage
 import Task
+import WebStorage
+
 
 
 -- MAIN
@@ -21,6 +22,7 @@ main =
         }
 
 
+
 -- MODEL
 
 
@@ -32,7 +34,11 @@ type alias Model =
     }
 
 
-init : {} -> { model : Model, command : Cmd Msg }
+init :
+    {}
+    -> { model : Model
+       , command : Cmd Msg
+       }
 init _ =
     { model =
         { inputKey = ""
@@ -47,146 +53,165 @@ init _ =
 refreshContent : Cmd Msg
 refreshContent =
     LocalStorage.length
-        |> Task.andThen (\length ->
-            Array.initialize length 0 identity
-                |> Array.map LocalStorage.keyAtIndex
-                |> Task.sequence
-                |> Task.mapError (always WebStorage.AccessError)
-        )
+        |> Task.andThen
+                (\length ->
+                    Array.initialize length 0 identity
+                        |> Array.map LocalStorage.keyAtIndex
+                        |> Task.sequence
+                        |> Task.mapError (always WebStorage.AccessError)
+                )
         |> Task.attempt ShowContents
+
 
 
 -- UPDATE
 
 
 type Msg
-  = SetKey Key
-  | SetValue Value
-  | SaveToLocalStorage Key Value
-  | SavedToLocalStorage (Result WebStorage.WriteError {})
-  | ClearLocalStorage
-  | ClearedLocalStorage (Result WebStorage.AccessError {})
-  | GetFromLocalStorage Key
-  | GotFromLocalStorage Key (Result WebStorage.ReadError Value)
-  | RemoveFromLocalStorage Key
-  | RemovedFromLocalStorage Key (Result WebStorage.AccessError {})
-  | ShowContents (Result WebStorage.AccessError (Array String))
+    = SetKey Key
+    | SetValue Value
+    | SaveToLocalStorage Key Value
+    | SavedToLocalStorage (Result WebStorage.WriteError {})
+    | ClearLocalStorage
+    | ClearedLocalStorage (Result WebStorage.AccessError {})
+    | GetFromLocalStorage Key
+    | GotFromLocalStorage Key (Result WebStorage.ReadError Value)
+    | RemoveFromLocalStorage Key
+    | RemovedFromLocalStorage Key (Result WebStorage.AccessError {})
+    | ShowContents (Result WebStorage.AccessError (Array String))
 
 
-type alias Key = String
+type alias Key =
+    String
 
 
-type alias Value = String
+type alias Value =
+    String
 
 
-type alias Error = String
+type alias Error =
+    String
 
 
-update : Msg -> Model -> { model : Model, command : Cmd Msg }
+update :
+    Msg
+    -> Model
+    -> { model : Model
+       , command : Cmd Msg
+       }
 update msg model =
-  case msg of
-    SetKey key ->
-        { model = { model | inputKey = key }
-        , command = Cmd.none
-        }
-
-    SetValue value ->
-        { model = { model | inputValue = value }
-        , command = Cmd.none
-        }
-
-    SaveToLocalStorage key value ->
-        { model = model
-        , command =
-            LocalStorage.set key value
-                |> Task.attempt SavedToLocalStorage
-        }
-
-    SavedToLocalStorage (Ok {}) ->
-        { model =
-            { model
-                | inputKey = ""
-                , inputValue = ""
-                , message = "Saved <" ++ model.inputKey ++ ", " ++ model.inputValue ++ "> to localstorage"
+    case msg of
+        SetKey key ->
+            { model = { model | inputKey = key }
+            , command = Cmd.none
             }
-        , command = refreshContent
-        }
 
-    SavedToLocalStorage (Err WebStorage.QuotaExceeded) ->
-        { model = { model | message = "Couldn't write to local storage as we've used our quota" }
-        , command = Cmd.none
-        }
+        SetValue value ->
+            { model = { model | inputValue = value }
+            , command = Cmd.none
+            }
 
-    SavedToLocalStorage (Err WebStorage.WriteBlocked) ->
-        { model = { model | message = "Failed to write to localstorage" }
-        , command = Cmd.none
-        }
+        SaveToLocalStorage key value ->
+            { model = model
+            , command =
+                LocalStorage.set key value
+                    |> Task.attempt SavedToLocalStorage
+            }
 
-    ClearLocalStorage ->
-        { model = model
-        , command =
-            LocalStorage.clear
-                |> Task.attempt ClearedLocalStorage
-        }
+        SavedToLocalStorage (Ok {}) ->
+            { model =
+                { model
+                    | inputKey = ""
+                    , inputValue = ""
+                    , message = "Saved <" ++ model.inputKey ++ ", " ++ model.inputValue ++ "> to localstorage"
+                }
+            , command = refreshContent
+            }
 
-    ClearedLocalStorage (Ok {}) ->
-        { model = { model | message = "Successfully cleared localstorage" }
-        , command = refreshContent
-        }
+        SavedToLocalStorage (Err WebStorage.QuotaExceeded) ->
+            { model = { model | message = "Couldn\'t write to local storage as we\'ve used our quota" }
+            , command = Cmd.none
+            }
 
-    ClearedLocalStorage (Err err) ->
-        { model = { model | message = "Failed to clear localstorage" }
-        , command = Cmd.none
-        }
+        SavedToLocalStorage (Err WebStorage.WriteBlocked) ->
+            { model = { model | message = "Failed to write to localstorage" }
+            , command = Cmd.none
+            }
 
-    GetFromLocalStorage key ->
-        { model = { model | inputKey = "", inputValue = "" }
-        , command =
-            LocalStorage.get key
-                |> Task.attempt (GotFromLocalStorage key)
-        }
+        ClearLocalStorage ->
+            { model = model
+            , command =
+                LocalStorage.clear
+                    |> Task.attempt ClearedLocalStorage
+            }
 
-    GotFromLocalStorage key (Ok value) ->
-        { model = { model | message = "Got <" ++ key ++ ", " ++ value ++ "> from localstorage." }
-        , command = refreshContent
-        }
+        ClearedLocalStorage (Ok {}) ->
+            { model = { model | message = "Successfully cleared localstorage" }
+            , command = refreshContent
+            }
 
-    GotFromLocalStorage key (Err WebStorage.NoValue) ->
-        { model = { model | message = "Found no items with key \"" ++ key ++ "\"" }
-        , command = Cmd.none
-        }
+        ClearedLocalStorage (Err err) ->
+            { model = { model | message = "Failed to clear localstorage" }
+            , command = Cmd.none
+            }
 
-    GotFromLocalStorage _ (Err WebStorage.ReadBlocked) ->
-        { model = { model | message = "Failed to read from localstorage" }
-        , command = Cmd.none
-        }
+        GetFromLocalStorage key ->
+            { model =
+                { model
+                    | inputKey = ""
+                    , inputValue = ""
+                }
+            , command =
+                LocalStorage.get key
+                    |> Task.attempt (GotFromLocalStorage key)
+            }
 
-    RemoveFromLocalStorage key ->
-        { model = { model | inputKey = "", inputValue = "" }
-        , command =
-            LocalStorage.remove key
-                |> Task.attempt (RemovedFromLocalStorage key)
-        }
+        GotFromLocalStorage key (Ok value) ->
+            { model = { model | message = "Got <" ++ key ++ ", " ++ value ++ "> from localstorage." }
+            , command = refreshContent
+            }
 
-    RemovedFromLocalStorage key (Ok {}) ->
-        { model = { model | message = "Removed item  with key \"" ++ key ++ "\" from localstorage." }
-        , command = refreshContent
-        }
+        GotFromLocalStorage key (Err WebStorage.NoValue) ->
+            { model = { model | message = "Found no items with key \"" ++ key ++ "\"" }
+            , command = Cmd.none
+            }
 
-    RemovedFromLocalStorage key (Err err) ->
-        { model = { model | message = "Failed to remove item with key \"" ++ key ++ "\" from localstorage" }
-        , command = Cmd.none
-        }
+        GotFromLocalStorage _ (Err WebStorage.ReadBlocked) ->
+            { model = { model | message = "Failed to read from localstorage" }
+            , command = Cmd.none
+            }
 
-    ShowContents (Ok keys) ->
-        { model = { model | keys = keys }
-        , command = Cmd.none
-        }
+        RemoveFromLocalStorage key ->
+            { model =
+                { model
+                    | inputKey = ""
+                    , inputValue = ""
+                }
+            , command =
+                LocalStorage.remove key
+                    |> Task.attempt (RemovedFromLocalStorage key)
+            }
 
-    ShowContents (Err WebStorage.AccessError) ->
-        { model = { model | message = "Failed to retrieve contents of local storage:" }
-        , command = Cmd.none
-        }
+        RemovedFromLocalStorage key (Ok {}) ->
+            { model = { model | message = "Removed item  with key \"" ++ key ++ "\" from localstorage." }
+            , command = refreshContent
+            }
+
+        RemovedFromLocalStorage key (Err err) ->
+            { model = { model | message = "Failed to remove item with key \"" ++ key ++ "\" from localstorage" }
+            , command = Cmd.none
+            }
+
+        ShowContents (Ok keys) ->
+            { model = { model | keys = keys }
+            , command = Cmd.none
+            }
+
+        ShowContents (Err WebStorage.AccessError) ->
+            { model = { model | message = "Failed to retrieve contents of local storage:" }
+            , command = Cmd.none
+            }
+
 
 
 -- VIEW
@@ -194,8 +219,10 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    Html.div []
-        [ Html.div []
+    Html.div
+        []
+        [ Html.div
+            []
             [ Html.input
                 [ Attributes.placeholder "Key:"
                 , Attributes.value model.inputKey
@@ -210,39 +237,56 @@ view model =
                 []
             , Html.button
                 [ Attributes.type_ "button"
-                , Events.onClick <| SaveToLocalStorage model.inputKey model.inputValue
+                , Events.onClick
+                    <| SaveToLocalStorage model.inputKey model.inputValue
                 ]
-                [ Html.text "💾 Save" ]
+                [ Html.text "💾 Save"
+                ]
             , Html.button
                 [ Attributes.type_ "button"
-                , Events.onClick <| GetFromLocalStorage model.inputKey
+                , Events.onClick
+                    <| GetFromLocalStorage model.inputKey
                 ]
-                [ Html.text "🔎 Get" ]
+                [ Html.text "🔎 Get"
+                ]
             , Html.button
                 [ Attributes.type_ "button"
-                , Events.onClick <| RemoveFromLocalStorage model.inputKey
+                , Events.onClick
+                    <| RemoveFromLocalStorage model.inputKey
                 ]
-                [ Html.text "🗑 Remove" ]
+                [ Html.text "🗑 Remove"
+                ]
             , Html.button
                 [ Attributes.type_ "button"
                 , Events.onClick ClearLocalStorage
                 ]
-                [ Html.text "🧹 Clear" ]
+                [ Html.text "🧹 Clear"
+                ]
             ]
-        , Html.div []
-            [ Html.p [] [ Html.text model.message ] ]
-        , Html.div []
-            [ Html.p []
-                [ Html.text <|
-                    "There are currently "
+        , Html.div
+            []
+            [ Html.p
+                []
+                [ Html.text model.message
+                ]
+            ]
+        , Html.div
+            []
+            [ Html.p
+                []
+                [ Html.text
+                    <| "There are currently "
                     ++ String.fromInt (Array.length model.keys)
                     ++ " keys in local storage:"
                 ]
             ]
         , Html.ul [] (Array.map viewKey model.keys)
-    ]
+        ]
 
 
 viewKey : String -> Html msg
 viewKey key =
-    Html.li [] [ Html.text key ]
+    Html.li
+        []
+        [ Html.text key
+        ]
