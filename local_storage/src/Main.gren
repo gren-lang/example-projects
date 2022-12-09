@@ -14,7 +14,7 @@ import Task
 
 main =
     Browser.element
-        { init = \Unit -> init
+        { init = init
         , view = view
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -32,8 +32,8 @@ type alias Model =
     }
 
 
-init : { model : Model, command : Cmd Msg }
-init =
+init : {} -> { model : Model, command : Cmd Msg }
+init _ =
     { model =
         { inputKey = ""
         , inputValue = ""
@@ -63,13 +63,13 @@ type Msg
   = SetKey Key
   | SetValue Value
   | SaveToLocalStorage Key Value
-  | SavedToLocalStorage (Result WebStorage.WriteError Unit)
+  | SavedToLocalStorage (Result WebStorage.WriteError {})
   | ClearLocalStorage
-  | ClearedLocalStorage (Result WebStorage.AccessError Unit)
+  | ClearedLocalStorage (Result WebStorage.AccessError {})
   | GetFromLocalStorage Key
   | GotFromLocalStorage Key (Result WebStorage.ReadError Value)
   | RemoveFromLocalStorage Key
-  | RemovedFromLocalStorage Key (Result WebStorage.AccessError Unit)
+  | RemovedFromLocalStorage Key (Result WebStorage.AccessError {})
   | ShowContents (Result WebStorage.AccessError (Array String))
 
 
@@ -102,7 +102,7 @@ update msg model =
                 |> Task.attempt SavedToLocalStorage
         }
 
-    SavedToLocalStorage (Ok Unit) ->
+    SavedToLocalStorage (Ok {}) ->
         { model =
             { model
                 | inputKey = ""
@@ -129,7 +129,7 @@ update msg model =
                 |> Task.attempt ClearedLocalStorage
         }
 
-    ClearedLocalStorage (Ok Unit) ->
+    ClearedLocalStorage (Ok {}) ->
         { model = { model | message = "Successfully cleared localstorage" }
         , command = refreshContent
         }
@@ -168,7 +168,7 @@ update msg model =
                 |> Task.attempt (RemovedFromLocalStorage key)
         }
 
-    RemovedFromLocalStorage key (Ok Unit) ->
+    RemovedFromLocalStorage key (Ok {}) ->
         { model = { model | message = "Removed item  with key \"" ++ key ++ "\" from localstorage." }
         , command = refreshContent
         }

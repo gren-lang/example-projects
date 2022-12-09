@@ -1,4 +1,4 @@
-port module Main exposing (..)
+module Main exposing (..)
 
 {-| TodoMVC implemented in Gren, using plain HTML and CSS for rendering.
 
@@ -8,8 +8,7 @@ This application is broken up into three key parts:
   2. Update - a way to step the application state forward
   3. View   - a way to visualize our application state with HTML
 
-This clean division of concerns is a core part of Gren. You can read more about
-this in <http://guide.elm-lang.org/architecture/index.html>
+This clean division of concerns is a core part of Gren.
 -}
 
 import Browser
@@ -19,11 +18,13 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Keyed as Keyed
 import Html.Lazy exposing (lazy, lazy2)
+import Json.Encode as JE
 import Json.Decode as Json
 import Task
 import Array exposing (Array)
+import LocalStorage
 
--- main : Program (Maybe Model) Model Msg
+main : Program {} Model Msg
 main =
     Browser.document
         { init = init
@@ -33,21 +34,30 @@ main =
         }
 
 
-port setStorage : Model -> Cmd msg
-
-
 {-| We want to `setStorage` on every update. This function adds the setStorage
 command for every step of the update function.
 -}
 updateWithStorage : Msg -> Model -> { model : Model, command : Cmd Msg }
 updateWithStorage msg model =
-    let
-        updated =
-            update msg model
-    in
-        { model = updated.model
-        , command = Cmd.batch [ setStorage updated.model, updated.command ]
-        }
+    case msg of
+        -- Terminate early to avoid setStorage loop
+        NoOp ->
+            { model = model
+            , command = Cmd.none
+            }
+
+        _ ->
+            let
+                updated =
+                    update msg model
+            in
+            { model = updated.model
+            , command =
+                Cmd.batch
+                    [ setStorage updated.model
+                    , updated.command
+                    ]
+            }
 
 
 
@@ -89,12 +99,63 @@ newEntry desc id =
     }
 
 
-init : Maybe Model -> { model : Model, command : Cmd Msg }
-init maybeModel =
-  { model = Maybe.withDefault emptyModel maybeModel
-  , command = Cmd.none
+entryEncoder : Entry -> JE.Value
+entryEncoder entry =
+    JE.object
+        [ { key = "description", value = JE.string entry.description }
+        , { key = "completed", value = JE.bool entry.completed }
+        , { key = "editing", value = JE.bool entry.editing }
+        , { key = "id", value = JE.int entry.id }
+        ]
+
+
+entryDecoder : Json.Decoder Entry
+entryDecoder =
+    Json.map4
+        (\description completed editing id ->
+            { description = description
+            , completed = completed
+            , editing = editing
+            , id = id
+            }
+        )
+        (Json.field "description" Json.string)
+        (Json.field "completed" Json.bool)
+        (Json.field "editing" Json.bool)
+        (Json.field "id" Json.int)
+
+
+init : {} -> { model : Model, command : Cmd Msg }
+init _ =
+  { model = emptyModel
+  , command = getStorage
   }
 
+
+setStorage : Model -> Cmd Msg
+setStorage model =
+    let
+        json =
+            JE.encode 0 (JE.array entryEncoder model.entries)
+    in
+    LocalStorage.set "gren-todo-save" json
+        |> Task.attempt (\_ -> NoOp)
+
+
+getStorage : Cmd Msg
+getStorage =
+    LocalStorage.get "gren-todo-save"
+        |> Task.map (Json.decodeString (Json.array entryDecoder))
+        |> Task.attempt (\res ->
+            -- If there is any error at all, we ignore it.
+            -- A correct model will be set once the model changes.
+            case res of
+                Ok (Ok entries) ->
+                    LoadedEntriesFromStorage entries
+
+                _ ->
+                    NoOp
+        )
 
 
 -- UPDATE
@@ -115,6 +176,7 @@ type Msg
     | Check Int Bool
     | CheckAll Bool
     | ChangeVisibility String
+    | LoadedEntriesFromStorage (Array Entry)
 
 
 
@@ -206,6 +268,11 @@ update msg model =
             , command = Cmd.none
             }
 
+        LoadedEntriesFromStorage entries ->
+            { model = { model | entries = entries }
+            , command = Cmd.none
+            }
+
 
 
 -- VIEW
@@ -217,7 +284,12 @@ view model =
         [ class "todomvc-wrapper"
         , style "visibility" "hidden"
         ]
-        [ section
+        [ node "link"
+            [ attribute "rel" "stylesheet"
+            , attribute "href" "style.css"
+            ]
+            []
+        , section
             [ class "todoapp" ]
             [ lazy viewInput model.field
             , lazy2 viewEntries model.visibility model.entries
@@ -425,8 +497,8 @@ infoFooter =
     footer [ class "info" ]
         [ p [] [ text "Double-click to edit a todo" ]
         , p []
-            [ text "Originally written by " 
-            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"] 
+            [ text "Originally written by "
+            , a [ href "https://github.com/evancz"] [ text "Evan Czaplici"]
             , text "in Elm, ported to Gren by the "
             , a [ href "https://github.com/gren-lang" ] [ text "Gren CONTRIBUTORS" ]
             ]

@@ -1,12 +1,16 @@
-common_examples := counter\
-			files\
-			flight_booker\
-			hello_world\
-			temperature_converter\
-			timer\
-			local_storage
+browser_examples := \
+	counter\
+	files\
+	flight_booker\
+	hello_world\
+	temperature_converter\
+	timer\
+	local_storage\
+	todo_mvc
 
-all_examples := $(common_examples) todo_mvc
+node_examples := cat
+
+all_examples := $(browser_examples) $(node_examples)
 
 project_caches := $(foreach project, $(all_examples), $(project)/.gren)
 
@@ -21,12 +25,12 @@ clean:
 	rm -r $(project_caches)
 	@echo "Done"
 
-$(common_examples):
+$(browser_examples):
 	@echo "Compiling $@"
 	@cd "./$@/";\
 	gren make ./src/Main.gren --output=./Example.html
 
-todo_mvc:
+$(node_examples):
 	@echo "Compiling $@"
 	@cd "./$@/";\
-		gren make ./src/Main.gren --output=./Example.js
+	gren make ./src/Main.gren --optimize --output=./app
