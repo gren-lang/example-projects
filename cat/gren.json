@@ -4,11 +4,11 @@
     "source-directories": [
         "src"
     ],
-    "gren-version": "0.2.0",
+    "gren-version": "0.2.1",
     "dependencies": {
         "direct": {
-            "gren-lang/core": "3.0.0",
-            "gren-lang/node": "1.0.0"
+            "gren-lang/core": "3.0.2",
+            "gren-lang/node": "1.2.0"
         },
         "indirect": {}
     }
