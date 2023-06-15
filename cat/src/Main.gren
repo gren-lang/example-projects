@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Node
 import Bytes exposing (Bytes)
-import Bytes.Encode as BE
 import Stream exposing (Stream)
 import Node.Program as Program exposing (Program)
 import FileSystem
@@ -19,7 +18,9 @@ main =
 
 
 type alias Model =
-    { stdout : Stream }
+    { stdout : Stream 
+    , stderr : Stream
+    }
 
 
 type Msg
@@ -34,6 +35,7 @@ init =
             Program.startProgram
                 { model =
                     { stdout = nodeConfig.stdout
+                    , stderr = nodeConfig.stderr
                     }
                 , command =
                     case nodeConfig.args of
@@ -42,9 +44,8 @@ init =
                                 |> Task.attempt OpenResult
 
                         _ ->
-                            Stream.send nodeConfig.stderr <|
-                                BE.encode <|
-                                    BE.string "Exactly one argument is required: the file name to read\n"
+                            Stream.sendLine nodeConfig.stderr <|
+                                "Exactly one argument is required: the file name to read"
                 }
 
 
@@ -60,16 +61,21 @@ update msg model =
 
         OpenResult (Err error) ->
             { model = model
-            , command = Cmd.none
+            , command =
+                Stream.sendLine model.stderr <|
+                    "Failed to open file"
             }
 
         ReadResult (Ok bytes) ->
             { model = model
-            , command = Stream.send model.stdout bytes
+            , command = 
+                Stream.send model.stdout bytes
             }
 
         ReadResult (Err error) ->
             { model = model
-            , command = Cmd.none
+            , command =
+                Stream.sendLine model.stderr <|
+                    "Failed to read file"
             }
 
