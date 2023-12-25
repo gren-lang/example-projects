@@ -1,0 +1,90 @@
+module Main exposing (main)
+
+import Node
+import Stream exposing (Stream)
+import Node exposing (Environment, Program)
+import HttpServer as Http exposing (ServerError(..))
+import HttpServer.Response as Response exposing (Response)
+import Init
+import Task
+import Url
+
+
+main : Program Model Msg
+main =
+    Node.defineProgram
+        { init = init
+        , update = update
+        , subscriptions = subscriptions
+        }
+
+
+type alias Model =
+    { stdout : Stream
+    , stderr : Stream
+    , server : Maybe Http.Server
+    }
+
+
+type Msg
+    = CreateServerResult (Result Http.ServerError Http.Server)
+    | GotRequest Http.Request Response
+
+
+init : Environment -> Init.Task { model : Model, command : Cmd Msg }
+init env =
+    Init.await Http.initialize <| \serverPermission ->
+        Node.startProgram
+            { model =
+                { stdout = env.stdout
+                , stderr = env.stderr
+                , server = Nothing
+                }
+            , command =
+                Task.attempt CreateServerResult <|
+                    Http.createServer serverPermission
+                        { host = "0.0.0.0"
+                        , port_ = 3000
+                        }
+            }
+
+
+update : Msg -> Model -> { model : Model, command : Cmd Msg }
+update msg model =
+    case msg of
+        CreateServerResult result ->
+            case result of
+                Ok server ->
+                    { model = { model | server = Just server }
+                    , command = Stream.sendLine model.stdout
+                        "Server started"
+                    }
+                Err (ServerError code message) ->
+                    { model = model
+                    , command = Stream.sendLine model.stderr <|
+                        "Server failed to start: " ++ code ++ "\n" ++ message
+                    }
+        
+        GotRequest req res ->
+            let
+                body =
+                    Url.toString req.url
+            in
+            { model = model
+            , command =
+                res
+                    |> Response.setStatus 200
+                    |> Response.setHeader "Content-type" "text/html"
+                    |> Response.setBody ("<html>" ++ body ++ "</html>")
+                    |> Response.send
+            }
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model.server of
+        Just server ->
+            Http.onRequest server GotRequest
+
+        Nothing ->
+            Sub.none
