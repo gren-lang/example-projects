@@ -7,9 +7,11 @@
     "gren-version": "0.3.0",
     "dependencies": {
         "direct": {
-            "gren-lang/core": "4.0.0",
-            "gren-lang/node": "2.0.0"
+            "gren-lang/core": "4.0.1",
+            "gren-lang/node": "3.0.1"
         },
-        "indirect": {}
+        "indirect": {
+            "gren-lang/url": "3.0.0"
+        }
     }
 }

@@ -3,14 +3,15 @@ module Main exposing (main)
 import Node
 import Bytes exposing (Bytes)
 import Stream exposing (Stream)
-import Node.Program as Program exposing (Program)
+import Node exposing (Program, Environment)
 import FileSystem
+import Init
 import Task
 
 
 main : Program Model Msg
 main =
-    Program.define
+    Node.defineProgram
         { init = init
         , update = update
         , subscriptions = \_ -> Sub.none
@@ -27,27 +28,24 @@ type Msg
     = OpenResult (Result FileSystem.AccessError (FileSystem.ReadableFileHandle Never))
     | ReadResult (Result FileSystem.UnknownFileSystemError Bytes)
 
-
-init : Program.AppInitTask { model : Model, command : Cmd Msg }
-init =
-    Program.await Node.initialize <| \nodeConfig ->
-        Program.await FileSystem.initialize <| \fsPermission ->
-            Program.startProgram
-                { model =
-                    { stdout = nodeConfig.stdout
-                    , stderr = nodeConfig.stderr
-                    }
-                , command =
-                    case nodeConfig.args of
-                        [ _, _, file ] ->
-                            FileSystem.openForRead fsPermission file
-                                |> Task.attempt OpenResult
-
-                        _ ->
-                            Stream.sendLine nodeConfig.stderr <|
-                                "Exactly one argument is required: the file name to read"
+init : Environment -> Init.Task { model : Model, command : Cmd Msg }
+init env =
+    Init.await FileSystem.initialize <| \fsPermission ->
+        Node.startProgram
+            { model =
+                { stdout = env.stdout
+                , stderr = env.stderr
                 }
+            , command =
+                case env.args of
+                    [ _, _, file ] ->
+                        FileSystem.openForRead fsPermission file
+                            |> Task.attempt OpenResult
 
+                    _ ->
+                        Stream.sendLine env.stderr <|
+                            "Exactly one argument is required: the file name to read"
+            }
 
 update : Msg -> Model -> { model : Model, command : Cmd Msg }
 update msg model =
