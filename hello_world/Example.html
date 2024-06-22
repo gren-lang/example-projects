@@ -108,26 +108,26 @@ var _Array_initialize = F3(function (size, offset, func) {
 });
 
 var _Array_get = F2(function (index, array) {
-  if (index < 0 || index >= array.length) {
+  var value = array.at(index);
+
+  if (value === undefined) {
     return $gren_lang$core$Maybe$Nothing;
   }
 
-  return $gren_lang$core$Maybe$Just(array[index]);
+  return $gren_lang$core$Maybe$Just(value);
 });
 
 var _Array_set = F3(function (index, value, array) {
-  if (index < 0 || index >= array.length) {
+  try {
+    return array.with(index, value);
+  } catch (e) {
+    // assuming RangeError
     return array;
   }
-
-  var result = array.slice();
-  result[index] = value;
-
-  return result;
 });
 
 var _Array_push = F2(function (value, array) {
-  return array.concat([value]);
+  return array.concat(value);
 });
 
 var _Array_foldl = F3(function (func, acc, array) {
@@ -146,6 +146,22 @@ var _Array_foldr = F3(function (func, acc, array) {
   return acc;
 });
 
+var _Array_indexedFoldl = F3(function (func, acc, array) {
+  for (var i = 0; i < array.length; i++) {
+    acc = A3(func, i, array[i], acc);
+  }
+
+  return acc;
+});
+
+var _Array_indexedFoldr = F3(function (func, acc, array) {
+  for (var i = array.length - 1; i >= 0; i--) {
+    acc = A3(func, i, array[i], acc);
+  }
+
+  return acc;
+});
+
 var _Array_map = F2(function (func, array) {
   return array.map(func);
 });
@@ -154,6 +170,18 @@ var _Array_indexedMap = F2(function (func, array) {
   return array.map(function (value, index) {
     return A2(func, index, value);
   });
+});
+
+var _Array_filter = F2(function (func, array) {
+  return array.filter(func);
+});
+
+var _Array_flat = function (array) {
+  return array.flat();
+}
+
+var _Array_flatMap = F2(function (func, array) {
+  return array.flatMap(func);
 });
 
 var _Array_slice = F3(function (from, to, array) {
@@ -165,7 +193,7 @@ var _Array_append = F2(function (left, right) {
 });
 
 var _Array_reverse = function (array) {
-  return array.slice().reverse();
+  return array.toReversed();
 };
 
 var _Array_findFirst = F2(function (pred, array) {
@@ -215,19 +243,19 @@ var _Array_map3 = F4(function (fn, as, bs, cs) {
 });
 
 var _Array_sort = function (array) {
-  return array.slice().sort(function (a, b) {
+  return array.toSorted(function (a, b) {
     return _Utils_cmp(a, b);
   });
 };
 
 var _Array_sortBy = F2(function (fn, array) {
-  return array.slice().sort(function (a, b) {
+  return array.toSorted(function (a, b) {
     return _Utils_cmp(fn(a), fn(b));
   });
 });
 
 var _Array_sortWith = F2(function (fn, array) {
-  return array.slice().sort(function (a, b) {
+  return array.toSorted(function (a, b) {
     var ord = A2(fn, a, b);
     return ord === $gren_lang$core$Basics$EQ ? 0 : ord === $gren_lang$core$Basics$LT ? -1 : 1;
   });
@@ -269,18 +297,32 @@ function _Utils_eqHelp(x, y, depth, stack) {
 	}
 	if (x.$ === 'RBNode_gren_builtin' || x.$ === 'RBEmpty_gren_builtin')
 	{
-		x = $gren_lang$core$Dict$toArray(x);
-		y = $gren_lang$core$Dict$toArray(y);
+		x = A3($gren_lang$core$Dict$foldl, F3(function(key, value, acc) { acc.push({ a: key, b: value }); return acc; }), [], x);
+		y = A3($gren_lang$core$Dict$foldl, F3(function(key, value, acc) { acc.push({ a: key, b: value }); return acc; }), [], y);
 	}
 	//*/
 
   /**_UNUSED/
 	if (x.$ < 0)
 	{
-		x = $gren_lang$core$Dict$toArray(x);
-		y = $gren_lang$core$Dict$toArray(y);
+		x = A3($gren_lang$core$Dict$foldl, F3(function(key, value, acc) { acc.push({ a: key, b: value }); return acc; }), [], x);
+		y = A3($gren_lang$core$Dict$foldl, F3(function(key, value, acc) { acc.push({ a: key, b: value }); return acc; }), [], y);
 	}
 	//*/
+
+  if (x instanceof DataView) {
+    var length = x.byteLength;
+
+    if (y.byteLength !== length) {
+      return false;
+    }
+
+    for (var i = 0; i < length; ++i) {
+      if (x.getUint8(i) !== y.getUint8(i)) {
+        return false;
+      }
+    }
+  }
 
   if (Array.isArray(x) && x.length !== y.length) {
     return false;
@@ -483,7 +525,7 @@ function _Debug_toAnsiString(ansi, value) {
         _Debug_ctorColor(ansi, "Dict") +
         _Debug_fadeColor(ansi, ".fromArray") +
         " " +
-        _Debug_toAnsiString(ansi, $gren_lang$core$Dict$toArray(value))
+        _Debug_toAnsiString(ansi, A3($gren_lang$core$Dict$foldl, F3(function (key, value, acc) { acc.push({ key: key, value: value }); return acc; }), [], value))
       );
     }
 
@@ -701,11 +743,6 @@ var $gren_lang$core$Dict$foldl = F3(function(func, acc, dict) {
 		}
 	});
 var $gren_lang$core$Array$pushLast = _Array_push;
-var $gren_lang$core$Dict$toArray = function(dict) {
-	return A3($gren_lang$core$Dict$foldl, F3(function(key, value, array) {
-				return A2($gren_lang$core$Array$pushLast, { key: key, value: value }, array);
-			}), [  ], dict);
-};
 var $gren_lang$core$Dict$keys = function(dict) {
 	return A3($gren_lang$core$Dict$foldl, F3(function(key, value, keyArray) {
 				return A2($gren_lang$core$Array$pushLast, key, keyArray);
@@ -1364,7 +1401,8 @@ function _VirtualDom_diffHelp(x, y, patches, index) {
       y.k = y.n();
       var subPatches = [];
       _VirtualDom_diffHelp(x.k, y.k, subPatches, 0);
-      subPatches.length > 0 && _VirtualDom_pushPatch(patches, 1, index, subPatches);
+      subPatches.length > 0 &&
+        _VirtualDom_pushPatch(patches, 1, index, subPatches);
       return;
 
     case 4:
@@ -2232,7 +2270,7 @@ function _Json_decodePrim(decoder) {
 var _Json_decodeInt = _Json_decodePrim(function (value) {
   return typeof value !== "number"
     ? _Json_expecting("an INT", value)
-    : -2147483647 < value && value < 2147483647 && (value | 0) === value
+    : Math.trunc(value) === value
     ? $gren_lang$core$Result$Ok(value)
     : isFinite(value) && !(value % 1)
     ? $gren_lang$core$Result$Ok(value)
@@ -2645,7 +2683,7 @@ var _Basics_fdiv = F2(function (a, b) {
   return a / b;
 });
 var _Basics_idiv = F2(function (a, b) {
-  return (a / b) | 0;
+  return Math.trunc(a / b);
 });
 var _Basics_pow = F2(Math.pow);
 
@@ -2682,14 +2720,11 @@ var _String_cons = F2(function (chr, str) {
 });
 
 function _String_uncons(string) {
-  var word = string.charCodeAt(0);
-  return !isNaN(word)
-    ? $gren_lang$core$Maybe$Just(
-        0xd800 <= word && word <= 0xdbff
-          ? { first: _Utils_chr(string[0] + string[1]), rest: string.slice(2) }
-          : { first: _Utils_chr(string[0]), rest: string.slice(1) }
-      )
-    : $gren_lang$core$Maybe$Nothing;
+  if (string.length <= 0) {
+    return $gren_lang$core$Maybe$Nothing;
+  }
+
+  return $gren_lang$core$Maybe$Just({ first: _Utils_chr(string[0]), rest: string.slice(1) });
 }
 
 var _String_append = F2(function (a, b) {
@@ -2705,12 +2740,6 @@ var _String_map = F2(function (func, string) {
   var array = new Array(len);
   var i = 0;
   while (i < len) {
-    var word = string.charCodeAt(i);
-    if (0xd800 <= word && word <= 0xdbff) {
-      array[i] = func(_Utils_chr(string[i] + string[i + 1]));
-      i += 2;
-      continue;
-    }
     array[i] = func(_Utils_chr(string[i]));
     i++;
   }
@@ -2723,12 +2752,7 @@ var _String_filter = F2(function (isGood, str) {
   var i = 0;
   while (i < len) {
     var char = str[i];
-    var word = str.charCodeAt(i);
     i++;
-    if (0xd800 <= word && word <= 0xdbff) {
-      char += str[i];
-      i++;
-    }
 
     if (isGood(_Utils_chr(char))) {
       arr.push(char);
@@ -2742,16 +2766,8 @@ function _String_reverse(str) {
   var arr = new Array(len);
   var i = 0;
   while (i < len) {
-    var word = str.charCodeAt(i);
-    if (0xd800 <= word && word <= 0xdbff) {
-      arr[len - i] = str[i + 1];
-      i++;
-      arr[len - i] = str[i - 1];
-      i++;
-    } else {
-      arr[len - i] = str[i];
-      i++;
-    }
+    arr[len - i] = str[i];
+    i++;
   }
   return arr.join("");
 }
@@ -2761,13 +2777,8 @@ var _String_foldl = F3(function (func, state, string) {
   var i = 0;
   while (i < len) {
     var char = string[i];
-    var word = string.charCodeAt(i);
-    i++;
-    if (0xd800 <= word && word <= 0xdbff) {
-      char += string[i];
-      i++;
-    }
     state = A2(func, _Utils_chr(char), state);
+    i++;
   }
   return state;
 });
@@ -2776,11 +2787,6 @@ var _String_foldr = F3(function (func, state, string) {
   var i = string.length;
   while (i--) {
     var char = string[i];
-    var word = string.charCodeAt(i);
-    if (0xdc00 <= word && word <= 0xdfff) {
-      i--;
-      char = string[i] + char;
-    }
     state = A2(func, _Utils_chr(char), state);
   }
   return state;
@@ -2830,11 +2836,6 @@ var _String_any = F2(function (isGood, string) {
   var i = string.length;
   while (i--) {
     var char = string[i];
-    var word = string.charCodeAt(i);
-    if (0xdc00 <= word && word <= 0xdfff) {
-      i--;
-      char = string[i] + char;
-    }
     if (isGood(_Utils_chr(char))) {
       return true;
     }
@@ -2846,11 +2847,6 @@ var _String_all = F2(function (isGood, string) {
   var i = string.length;
   while (i--) {
     var char = string[i];
-    var word = string.charCodeAt(i);
-    if (0xdc00 <= word && word <= 0xdfff) {
-      i--;
-      char = string[i] + char;
-    }
     if (!isGood(_Utils_chr(char))) {
       return false;
     }

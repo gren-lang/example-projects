@@ -51,7 +51,7 @@ refreshContent =
             Array.initialize length 0 identity
                 |> Array.map LocalStorage.keyAtIndex
                 |> Task.sequence
-                |> Task.mapError (always WebStorage.AccessError)
+                |> Task.mapError (\_ -> WebStorage.AccessError)
         )
         |> Task.attempt ShowContents
 
