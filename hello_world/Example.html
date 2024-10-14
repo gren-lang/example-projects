@@ -722,29 +722,30 @@ function _Debug_regionToString(region) {
     "on lines " + region.start.line + " through " + region.end.line
   );
 }
-var $gren_lang$core$Dict$foldl = F3(function(func, acc, dict) {
-		foldl:
-		while (true) {
-			if (dict.$ === 'RBEmpty_gren_builtin') {
-				return acc;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var $temp$func = func,
-				$temp$acc = A3(func, key, value, A3($gren_lang$core$Dict$foldl, func, acc, left)),
-				$temp$dict = right;
-				func = $temp$func;
-				acc = $temp$acc;
-				dict = $temp$dict;
-				continue foldl;
-			}
+var $gren_lang$core$Dict$foldl$ = function(func, acc, dict) {
+	foldl:
+	while (true) {
+		if (dict.$ === 'RBEmpty_gren_builtin') {
+			return acc;
+		} else {
+			var key = dict.b;
+			var value = dict.c;
+			var left = dict.d;
+			var right = dict.e;
+			var $temp$func = func,
+			$temp$acc = A3(func, key, value, $gren_lang$core$Dict$foldl$(func, acc, left)),
+			$temp$dict = right;
+			func = $temp$func;
+			acc = $temp$acc;
+			dict = $temp$dict;
+			continue foldl;
 		}
-	});
+	}
+};
+var $gren_lang$core$Dict$foldl = F3($gren_lang$core$Dict$foldl$);
 var $gren_lang$core$Array$pushLast = _Array_push;
 var $gren_lang$core$Dict$keys = function(dict) {
-	return A3($gren_lang$core$Dict$foldl, F3(function(key, value, keyArray) {
+	return $gren_lang$core$Dict$foldl$(F3(function(key, value, keyArray) {
 				return A2($gren_lang$core$Array$pushLast, key, keyArray);
 			}), [  ], dict);
 };
@@ -2650,15 +2651,18 @@ var _Json_encodeNull = _Json_wrap(null);
 var $gren_lang$core$Result$Err = function (a) {
 	return { $: 'Err', a: a };
 };
-var $gren_lang$core$Json$Decode$Failure = F2(function (a, b) {
-		return { $: 'Failure', a: a, b: b };
-	});
-var $gren_lang$core$Json$Decode$Field = F2(function (a, b) {
-		return { $: 'Field', a: a, b: b };
-	});
-var $gren_lang$core$Json$Decode$Index = F2(function (a, b) {
-		return { $: 'Index', a: a, b: b };
-	});
+var $gren_lang$core$Json$Decode$Failure$ = function (a, b) {
+	return { $: 'Failure', a: a, b: b };
+};
+var $gren_lang$core$Json$Decode$Failure = F2($gren_lang$core$Json$Decode$Failure$);
+var $gren_lang$core$Json$Decode$Field$ = function (a, b) {
+	return { $: 'Field', a: a, b: b };
+};
+var $gren_lang$core$Json$Decode$Field = F2($gren_lang$core$Json$Decode$Field$);
+var $gren_lang$core$Json$Decode$Index$ = function (a, b) {
+	return { $: 'Index', a: a, b: b };
+};
+var $gren_lang$core$Json$Decode$Index = F2($gren_lang$core$Json$Decode$Index$);
 var $gren_lang$core$Result$Ok = function (a) {
 	return { $: 'Ok', a: a };
 };
@@ -2981,11 +2985,11 @@ function _Char_toLocaleLower(char) {
 var $gren_lang$core$Char$toCode = _Char_toCode;
 var $gren_lang$core$Char$isLower = function(_char) {
 	var code = $gren_lang$core$Char$toCode(_char);
-	return (_Utils_cmp(97, code) < 1) && (_Utils_cmp(code, 122) < 1);
+	return (97 <= code) && (code <= 122);
 };
 var $gren_lang$core$Char$isUpper = function(_char) {
 	var code = $gren_lang$core$Char$toCode(_char);
-	return (_Utils_cmp(code, 90) < 1) && (_Utils_cmp(65, code) < 1);
+	return (code <= 90) && (65 <= code);
 };
 var $gren_lang$core$Basics$or = _Basics_or;
 var $gren_lang$core$Char$isAlpha = function(_char) {
@@ -2993,95 +2997,97 @@ var $gren_lang$core$Char$isAlpha = function(_char) {
 };
 var $gren_lang$core$Char$isDigit = function(_char) {
 	var code = $gren_lang$core$Char$toCode(_char);
-	return (_Utils_cmp(code, 57) < 1) && (_Utils_cmp(48, code) < 1);
+	return (code <= 57) && (48 <= code);
 };
 var $gren_lang$core$Char$isAlphaNum = function(_char) {
 	return $gren_lang$core$Char$isLower(_char) || ($gren_lang$core$Char$isUpper(_char) || $gren_lang$core$Char$isDigit(_char));
 };
 var $gren_lang$core$Array$length = _Array_length;
 var $gren_lang$core$String$uncons = _String_uncons;
-var $gren_lang$core$Json$Decode$errorOneOf = F2(function(i, error) {
-		return _Utils_ap('\n\n(', _Utils_ap($gren_lang$core$String$fromInt(i + 1), _Utils_ap(') ', $gren_lang$core$Json$Decode$indent($gren_lang$core$Json$Decode$errorToString(error)))));
-	});
-var $gren_lang$core$Json$Decode$errorToString = function(error) {
-	return A2($gren_lang$core$Json$Decode$errorToStringHelp, error, [  ]);
+var $gren_lang$core$Json$Decode$errorOneOf$ = function(i, error) {
+	return '\n\n(' + ($gren_lang$core$String$fromInt(i + 1) + (') ' + $gren_lang$core$Json$Decode$indent($gren_lang$core$Json$Decode$errorToString(error))));
 };
-var $gren_lang$core$Json$Decode$errorToStringHelp = F2(function(error, context) {
-		errorToStringHelp:
-		while (true) {
-			switch (error.$) {
-				case 'Field':
-					var f = error.a;
-					var err = error.b;
-					var isSimple = function () {
-						var _v1 = $gren_lang$core$String$uncons(f);
-						if (_v1.$ === 'Nothing') {
-							return false;
-						} else {
-							var _v2 = _v1.a;
-							var _char = _v2.first;
-							var rest = _v2.rest;
-							return $gren_lang$core$Char$isAlpha(_char) && A2($gren_lang$core$String$all, $gren_lang$core$Char$isAlphaNum, rest);
-						}
-					}();
-					var fieldName = isSimple ? _Utils_ap('.', f) : _Utils_ap('[\'', _Utils_ap(f, '\']'));
-					var $temp$error = err,
-					$temp$context = _Utils_ap([ fieldName ], context);
-					error = $temp$error;
-					context = $temp$context;
-					continue errorToStringHelp;
-				case 'Index':
-					var i = error.a;
-					var err = error.b;
-					var indexName = _Utils_ap('[', _Utils_ap($gren_lang$core$String$fromInt(i), ']'));
-					var $temp$error = err,
-					$temp$context = _Utils_ap([ indexName ], context);
-					error = $temp$error;
-					context = $temp$context;
-					continue errorToStringHelp;
-				case 'OneOf':
-					var errors = error.a;
-					switch (errors.length) {
-						case 0:
-							return _Utils_ap('Ran into a Json.Decode.oneOf with no possibilities', function () {
-									if (context.length === 0) {
-										return '!';
-									} else {
-										return _Utils_ap(' at json', A2($gren_lang$core$String$join, '', context));
-									}
-								}());
-						case 1:
-							var err = errors[0];
-							var $temp$error = err,
-							$temp$context = context;
-							error = $temp$error;
-							context = $temp$context;
-							continue errorToStringHelp;
-						default:
-							var starter = function () {
-								if (context.length === 0) {
-									return 'Json.Decode.oneOf';
-								} else {
-									return _Utils_ap('The Json.Decode.oneOf at json', A2($gren_lang$core$String$join, '', context));
-								}
-							}();
-							var introduction = _Utils_ap(starter, _Utils_ap(' failed in the following ', _Utils_ap($gren_lang$core$String$fromInt($gren_lang$core$Array$length(errors)), ' ways:')));
-							return A2($gren_lang$core$String$join, '\n\n', _Utils_ap([ introduction ], A2($gren_lang$core$Array$indexedMap, $gren_lang$core$Json$Decode$errorOneOf, errors)));
+var $gren_lang$core$Json$Decode$errorOneOf = F2($gren_lang$core$Json$Decode$errorOneOf$);
+var $gren_lang$core$Json$Decode$errorToString = function(error) {
+	return $gren_lang$core$Json$Decode$errorToStringHelp$(error, [  ]);
+};
+var $gren_lang$core$Json$Decode$errorToStringHelp$ = function(error, context) {
+	errorToStringHelp:
+	while (true) {
+		switch (error.$) {
+			case 'Field':
+				var f = error.a;
+				var err = error.b;
+				var isSimple = function () {
+					var _v1 = $gren_lang$core$String$uncons(f);
+					if (_v1.$ === 'Nothing') {
+						return false;
+					} else {
+						var _v2 = _v1.a;
+						var _char = _v2.first;
+						var rest = _v2.rest;
+						return $gren_lang$core$Char$isAlpha(_char) && A2($gren_lang$core$String$all, $gren_lang$core$Char$isAlphaNum, rest);
 					}
-				default:
-					var msg = error.a;
-					var json = error.b;
-					var introduction = function () {
-						if (context.length === 0) {
-							return 'Problem with the given value:\n\n';
-						} else {
-							return _Utils_ap('Problem with the value at json', _Utils_ap(A2($gren_lang$core$String$join, '', context), ':\n\n    '));
-						}
-					}();
-					return _Utils_ap(introduction, _Utils_ap($gren_lang$core$Json$Decode$indent(A2($gren_lang$core$Json$Encode$encode, 4, json)), _Utils_ap('\n\n', msg)));
-			}
+				}();
+				var fieldName = isSimple ? ('.' + f) : ('[\'' + (f + '\']'));
+				var $temp$error = err,
+				$temp$context = _Utils_ap([ fieldName ], context);
+				error = $temp$error;
+				context = $temp$context;
+				continue errorToStringHelp;
+			case 'Index':
+				var i = error.a;
+				var err = error.b;
+				var indexName = '[' + ($gren_lang$core$String$fromInt(i) + ']');
+				var $temp$error = err,
+				$temp$context = _Utils_ap([ indexName ], context);
+				error = $temp$error;
+				context = $temp$context;
+				continue errorToStringHelp;
+			case 'OneOf':
+				var errors = error.a;
+				switch (errors.length) {
+					case 0:
+						return 'Ran into a Json.Decode.oneOf with no possibilities' + function () {
+							if (context.length === 0) {
+								return '!';
+							} else {
+								return ' at json' + A2($gren_lang$core$String$join, '', context);
+							}
+						}();
+					case 1:
+						var err = errors[0];
+						var $temp$error = err,
+						$temp$context = context;
+						error = $temp$error;
+						context = $temp$context;
+						continue errorToStringHelp;
+					default:
+						var starter = function () {
+							if (context.length === 0) {
+								return 'Json.Decode.oneOf';
+							} else {
+								return 'The Json.Decode.oneOf at json' + A2($gren_lang$core$String$join, '', context);
+							}
+						}();
+						var introduction = starter + (' failed in the following ' + ($gren_lang$core$String$fromInt($gren_lang$core$Array$length(errors)) + ' ways:'));
+						return A2($gren_lang$core$String$join, '\n\n', _Utils_ap([ introduction ], A2($gren_lang$core$Array$indexedMap, $gren_lang$core$Json$Decode$errorOneOf, errors)));
+				}
+			default:
+				var msg = error.a;
+				var json = error.b;
+				var introduction = function () {
+					if (context.length === 0) {
+						return 'Problem with the given value:\n\n';
+					} else {
+						return 'Problem with the value at json' + (A2($gren_lang$core$String$join, '', context) + ':\n\n    ');
+					}
+				}();
+				return introduction + ($gren_lang$core$Json$Decode$indent(A2($gren_lang$core$Json$Encode$encode, 4, json)) + ('\n\n' + msg));
 		}
-	});
+	}
+};
+var $gren_lang$core$Json$Decode$errorToStringHelp = F2($gren_lang$core$Json$Decode$errorToStringHelp$);
 var $gren_lang$core$Basics$True = { $: 'True' };
 var $gren_lang$core$Result$isOk = function(result) {
 	if (result.$ === 'Ok') {
