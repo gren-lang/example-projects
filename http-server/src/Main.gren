@@ -56,13 +56,15 @@ update msg model =
             case result of
                 Ok server ->
                     { model = { model | server = Just server }
-                    , command = Stream.sendLine model.stdout
-                        "Server started"
+                    , command =
+                        Stream.sendLine model.stdout "Server started"
+                           |> Task.execute
                     }
                 Err (ServerError code message) ->
                     { model = model
-                    , command = Stream.sendLine model.stderr <|
-                        "Server failed to start: " ++ code ++ "\n" ++ message
+                    , command =
+                        Stream.sendLine model.stderr ("Server failed to start: " ++ code ++ "\n" ++ message)
+                          |> Task.execute
                     }
         
         GotRequest req res ->
