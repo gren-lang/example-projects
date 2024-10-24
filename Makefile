@@ -8,7 +8,9 @@ browser_examples := \
 	local_storage\
 	todo_mvc
 
-node_examples := cat
+node_examples := \
+	cat\
+	http-server
 
 all_examples := $(browser_examples) $(node_examples)
 
