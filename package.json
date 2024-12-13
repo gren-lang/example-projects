@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/gren-lang/example-projects#readme",
   "devDependencies": {
-    "cypress": "^10.3.0",
+    "cypress": "^13.16.1",
     "gren-lang": "^0.4.5"
   }
 }

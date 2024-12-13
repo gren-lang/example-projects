@@ -8,13 +8,14 @@ import Html.Events as Event
 
 main =
     Browser.sandbox
-    { init = init
-    , update = update
-    , view = view
-    }
+        { init = init
+        , update = update
+        , view = view
+        }
 
 
 type alias Model = Int
+
 
 init : Model
 init = 
@@ -23,9 +24,10 @@ init =
 
 type Msg = Clicked
 
+
 update : Msg -> Model -> Model
 update msg model =
-    case msg of
+    when msg is
         Clicked ->
             model + 1
 

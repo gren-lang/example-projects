@@ -42,7 +42,7 @@ type Msg
 
 
 update msg model =
-  case msg of
+  when msg is
     GotFiles files ->
       { model = files, command = Cmd.none }
 

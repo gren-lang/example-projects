@@ -39,7 +39,7 @@ command for every step of the update function.
 -}
 updateWithStorage : Msg -> Model -> { model : Model, command : Cmd Msg }
 updateWithStorage msg model =
-    case msg of
+    when msg is
         -- Terminate early to avoid setStorage loop
         NoOp ->
             { model = model
@@ -149,7 +149,7 @@ getStorage =
         |> Task.attempt (\res ->
             -- If there is any error at all, we ignore it.
             -- A correct model will be set once the model changes.
-            case res of
+            when res is
                 Ok (Ok entries) ->
                     LoadedEntriesFromStorage entries
 
@@ -168,12 +168,12 @@ to them.
 type Msg
     = NoOp
     | UpdateField String
-    | EditingEntry Int Bool
-    | UpdateEntry Int String
+    | EditingEntry { id : Int, isEditing : Bool }
+    | UpdateEntry { id : Int, task : String }
     | Add
     | Delete Int
     | DeleteComplete
-    | Check Int Bool
+    | Check { id : Int, isCompleted : Bool }
     | CheckAll Bool
     | ChangeVisibility String
     | LoadedEntriesFromStorage (Array Entry)
@@ -183,7 +183,7 @@ type Msg
 -- How we update our Model on a given Msg?
 update : Msg -> Model -> { model : Model, command : Cmd Msg }
 update msg model =
-    case msg of
+    when msg is
         NoOp ->
             { model = model, command = Cmd.none }
 
@@ -205,7 +205,7 @@ update msg model =
             , command = Cmd.none
             }
 
-        EditingEntry id isEditing ->
+        EditingEntry { id, isEditing } ->
             let
                 updateEntry t =
                     if t.id == id then
@@ -220,7 +220,7 @@ update msg model =
             , command = Task.attempt (\_ -> NoOp) focus
             }
 
-        UpdateEntry id task ->
+        UpdateEntry { id, task } ->
             let
                 updateEntry t =
                     if t.id == id then
@@ -233,16 +233,16 @@ update msg model =
             }
 
         Delete id ->
-            { model = { model | entries = Array.filter (\t -> t.id /= id) model.entries }
+            { model = { model | entries = Array.keepIf (\t -> t.id /= id) model.entries }
             , command = Cmd.none
             }
 
         DeleteComplete ->
-            { model = { model | entries = Array.filter (not << .completed) model.entries }
+            { model = { model | entries = Array.keepIf (not << .completed) model.entries }
             , command = Cmd.none
             }
 
-        Check id isCompleted ->
+        Check { id, isCompleted } ->
             let
                 updateEntry t =
                     if t.id == id then
@@ -337,7 +337,7 @@ viewEntries : String -> Array Entry -> Html Msg
 viewEntries visibility entries =
     let
         isVisible todo =
-            case visibility of
+            when visibility is
                 "Completed" ->
                     todo.completed
 
@@ -373,7 +373,7 @@ viewEntries visibility entries =
                 [ text "Mark all as complete" ]
             , Keyed.ul [ class "todo-list" ]
                 <| Array.map (\entry -> { key = entry.id, node = entry.message })
-                <| Array.map viewKeyedEntry <| (Array.filter isVisible entries)
+                <| Array.map viewKeyedEntry <| (Array.keepIf isVisible entries)
             ]
 
 
@@ -396,11 +396,11 @@ viewEntry todo =
                 [ class "toggle"
                 , type_ "checkbox"
                 , checked todo.completed
-                , onClick (Check todo.id (not todo.completed))
+                , onClick (Check { id = todo.id, isCompleted = (not todo.completed) })
                 ]
                 []
             , label
-                [ onDoubleClick (EditingEntry todo.id True) ]
+                [ onDoubleClick (EditingEntry { id = todo.id, isEditing = True }) ]
                 [ text todo.description ]
             , button
                 [ class "destroy"
@@ -413,9 +413,9 @@ viewEntry todo =
             , value todo.description
             , name "title"
             , id ("todo-" ++ String.fromInt todo.id)
-            , onInput (UpdateEntry todo.id)
-            , onBlur (EditingEntry todo.id False)
-            , onEnter (EditingEntry todo.id False)
+            , onInput (\task -> UpdateEntry { id = todo.id, task = task })
+            , onBlur (EditingEntry { id = todo.id, isEditing = False })
+            , onEnter (EditingEntry { id = todo.id, isEditing = False })
             ]
             []
         ]
@@ -429,7 +429,7 @@ viewControls : String -> Array Entry -> Html Msg
 viewControls visibility entries =
     let
         entriesCompleted =
-            Array.length (Array.filter .completed entries)
+            Array.length (Array.keepIf .completed entries)
 
         entriesLeft =
             Array.length entries - entriesCompleted

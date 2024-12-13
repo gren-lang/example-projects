@@ -1,7 +1,8 @@
 module Main exposing (main)
 
 import Node
-import Stream exposing (Stream)
+import Stream
+import Bytes exposing (Bytes)
 import Node exposing (Environment, Program)
 import HttpServer as Http exposing (ServerError(..))
 import HttpServer.Response as Response exposing (Response)
@@ -20,15 +21,15 @@ main =
 
 
 type alias Model =
-    { stdout : Stream
-    , stderr : Stream
+    { stdout : Stream.Writable Bytes
+    , stderr : Stream.Writable Bytes
     , server : Maybe Http.Server
     }
 
 
 type Msg
     = CreateServerResult (Result Http.ServerError Http.Server)
-    | GotRequest Http.Request Response
+    | GotRequest { request : Http.Request, response : Response }
 
 
 init : Environment -> Init.Task { model : Model, command : Cmd Msg }
@@ -51,23 +52,25 @@ init env =
 
 update : Msg -> Model -> { model : Model, command : Cmd Msg }
 update msg model =
-    case msg of
+    when msg is
         CreateServerResult result ->
-            case result of
+            when result is
                 Ok server ->
                     { model = { model | server = Just server }
                     , command =
-                        Stream.sendLine model.stdout "Server started"
+                        Stream.writeLineAsBytes "Server started" model.stdout
+                           |> Task.onError (\_ -> Task.succeed model.stderr)
                            |> Task.execute
                     }
-                Err (ServerError code message) ->
+                Err (ServerError { code, message }) ->
                     { model = model
                     , command =
-                        Stream.sendLine model.stderr ("Server failed to start: " ++ code ++ "\n" ++ message)
+                        Stream.writeLineAsBytes ("Server failed to start: " ++ code ++ "\n" ++ message) model.stderr
+                          |> Task.onError (\_ -> Task.succeed model.stderr)
                           |> Task.execute
                     }
         
-        GotRequest req res ->
+        GotRequest { request = req, response = res } ->
             let
                 body =
                     Url.toString req.url
@@ -84,9 +87,9 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.server of
+    when model.server is
         Just server ->
-            Http.onRequest server GotRequest
+            Http.onRequest server (\req res -> GotRequest { request = req, response = res })
 
         Nothing ->
             Sub.none

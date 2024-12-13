@@ -1,6 +1,7 @@
 describe('Todo MVC', () => {
   beforeEach(() => {
-    cy.visit('todo_mvc/Example.html'); });
+    cy.visit('todo_mvc/Example.html');
+  });
 
   it('Initial state', () => {
     cy.get('input.new-todo').should('have.text', '');

@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Node
 import Bytes exposing (Bytes)
-import Stream exposing (Stream)
+import Stream
 import Node exposing (Environment)
 import FileSystem
 import FileSystem.Path as Path
@@ -18,17 +18,17 @@ main =
 init : Environment -> Init.Task (Cmd a)
 init env =
     Init.await FileSystem.initialize <| \fsPermission ->
-        case env.args of
+        when env.args is
             [ _, _, file ] ->
                 FileSystem.readFile fsPermission (Path.fromPosixString file)
                     |> Task.map (Bytes.toString >> Maybe.withDefault "")
                     |> Task.onError (Task.succeed << FileSystem.errorToString)
-                    |> Task.andThen (Stream.sendLine env.stdout)
-                    |> Task.execute
-                    |> Node.endWithCmd
+                    |> Task.andThen (\str -> Stream.writeLineAsBytes str env.stdout)
+                    |> Task.onError (\_ -> Task.succeed env.stdout)
+                    |> Node.endSimpleProgram
 
             _ ->
                 "Exactly one argument is required: the file name to read"
-                    |> Stream.sendLine env.stderr
-                    |> Task.execute
-                    |> Node.endWithCmd
+                    |> (\str -> Stream.writeLineAsBytes str env.stderr)
+                    |> Task.onError (\_ -> Task.succeed env.stderr)
+                    |> Node.endSimpleProgram

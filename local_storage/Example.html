@@ -95,11 +95,7 @@ function A9(fun, a, b, c, d, e, f, g, h, i) {
 
 // ELEMENT
 
-var _Browser_element = F4(function (impl, flagDecoder, debugMetadata, args) {
-  if (typeof _Debugger_element !== "undefined") {
-    return A4(_Debugger_element, impl, flagDecoder, debugMetadata, args);
-  }
-
+var _Browser_element = F3(function (impl, flagDecoder, args) {
   return _Platform_initialize(
     flagDecoder,
     args,
@@ -133,11 +129,7 @@ var _Browser_element = F4(function (impl, flagDecoder, debugMetadata, args) {
 
 // DOCUMENT
 
-var _Browser_document = F4(function (impl, flagDecoder, debugMetadata, args) {
-  if (typeof _Debugger_document !== "undefined") {
-    return A4(_Debugger_document, impl, flagDecoder, debugMetadata, args);
-  }
-
+var _Browser_document = F3(function (impl, flagDecoder, args) {
   return _Platform_initialize(
     flagDecoder,
     args,
@@ -582,7 +574,7 @@ function _Debug_toAnsiString(ansi, value) {
   if (typeof value === "string") {
     return _Debug_stringColor(
       ansi,
-      '"' + _Debug_addSlashes(value, false) + '"'
+      '"' + _Debug_addSlashes(value, false) + '"',
     );
   }
 
@@ -619,7 +611,18 @@ function _Debug_toAnsiString(ansi, value) {
         _Debug_ctorColor(ansi, "Dict") +
         _Debug_fadeColor(ansi, ".fromArray") +
         " " +
-        _Debug_toAnsiString(ansi, A3($gren_lang$core$Dict$foldl, F3(function (key, value, acc) { acc.push({ key: key, value: value }); return acc; }), [], value))
+        _Debug_toAnsiString(
+          ansi,
+          A3(
+            $gren_lang$core$Dict$foldl,
+            F3(function (key, value, acc) {
+              acc.push({ key: key, value: value });
+              return acc;
+            }),
+            [],
+            value,
+          ),
+        )
       );
     }
 
@@ -640,12 +643,19 @@ function _Debug_toAnsiString(ansi, value) {
     return _Debug_ctorColor(ansi, tag) + output;
   }
 
-  if (typeof DataView === "function" && value instanceof DataView) {
+  if (value instanceof DataView) {
     return _Debug_stringColor(ansi, "<" + value.byteLength + " bytes>");
   }
 
   if (typeof File !== "undefined" && value instanceof File) {
     return _Debug_internalColor(ansi, "<" + value.name + ">");
+  }
+
+  if (
+    typeof _Array_Builder !== "undefined" &&
+    value instanceof _Array_Builder
+  ) {
+    return _Debug_toAnsiString(ansi, value.array.slice(0, value.target));
   }
 
   if (typeof value === "object") {
@@ -655,7 +665,7 @@ function _Debug_toAnsiString(ansi, value) {
       output.push(
         _Debug_fadeColor(ansi, field) +
           " = " +
-          _Debug_toAnsiString(ansi, value[key])
+          _Debug_toAnsiString(ansi, value[key]),
       );
     }
     if (output.length === 0) {
@@ -715,7 +725,7 @@ function _Debug_toHexDigit(n) {
 
 function _Debug_crash_UNUSED(identifier) {
   throw new Error(
-    "https://github.com/gren-lang/core/blob/1.0.0/hints/" + identifier + ".md"
+    "https://github.com/gren-lang/core/blob/1.0.0/hints/" + identifier + ".md",
   );
 }
 
@@ -723,21 +733,21 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
   switch (identifier) {
     case 0:
       throw new Error(
-        'What node should I take over? In JavaScript I need something like:\n\n    Gren.Main.init({\n        node: document.getElementById("gren-node")\n    })\n\nYou need to do this with any Browser.sandbox or Browser.element program.'
+        'What node should I take over? In JavaScript I need something like:\n\n    Gren.Main.init({\n        node: document.getElementById("gren-node")\n    })\n\nYou need to do this with any Browser.sandbox or Browser.element program.',
       );
 
     case 1:
       throw new Error(
         "Browser.application programs cannot handle URLs like this:\n\n    " +
           document.location.href +
-          "\n\nWhat is the root? The root of your file system?"
+          "\n\nWhat is the root? The root of your file system?",
       );
 
     case 2:
       var jsonErrorString = fact1;
       throw new Error(
         "Problem with the flags given to your Gren program on initialization.\n\n" +
-          jsonErrorString
+          jsonErrorString,
       );
 
     case 3:
@@ -745,7 +755,7 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
       throw new Error(
         "There can only be one port named `" +
           portName +
-          "`, but your program has multiple."
+          "`, but your program has multiple.",
       );
 
     case 4:
@@ -755,12 +765,12 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
         "Trying to send an unexpected type of value through port `" +
           portName +
           "`:\n" +
-          problem
+          problem,
       );
 
     case 5:
       throw new Error(
-        'Trying to use `(==)` on functions.\nThere is no way to know if functions are "the same" in the Gren sense.\nRead more about this at https://package.gren-lang.org/packages/gren-lang/core/latest/Basics#== which describes why it is this way and what the better version will look like.'
+        'Trying to use `(==)` on functions.\nThere is no way to know if functions are "the same" in the Gren sense.\nRead more about this at https://package.gren-lang.org/packages/gren-lang/core/latest/Basics#== which describes why it is this way and what the better version will look like.',
       );
 
     case 6:
@@ -768,7 +778,7 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
       throw new Error(
         "Your page is loading multiple Gren scripts with a module named " +
           moduleName +
-          ". Maybe a duplicate script is getting loaded accidentally? If not, rename one of them so I know which is which!"
+          ". Maybe a duplicate script is getting loaded accidentally? If not, rename one of them so I know which is which!",
       );
 
     case 8:
@@ -781,7 +791,7 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
           "` " +
           _Debug_regionToString(region) +
           "\n\n" +
-          message
+          message,
       );
 
     case 9:
@@ -797,7 +807,7 @@ function _Debug_crash(identifier, fact1, fact2, fact3, fact4) {
           "\n\nIt received the following value:\n\n    " +
           _Debug_toString(value).replace("\n", "\n    ") +
           "\n\nBut the branch that handles it says:\n\n    " +
-          message.replace("\n", "\n    ")
+          message.replace("\n", "\n    "),
       );
 
     case 10:
@@ -822,10 +832,11 @@ var $gren_lang$core$Dict$foldl$ = function(func, acc, dict) {
 		if (dict.$ === 'RBEmpty_gren_builtin') {
 			return acc;
 		} else {
-			var key = dict.b;
-			var value = dict.c;
-			var left = dict.d;
-			var right = dict.e;
+			var _v1 = dict.a;
+			var key = _v1.key;
+			var value = _v1.value;
+			var left = _v1.left;
+			var right = _v1.right;
 			var $temp$func = func,
 			$temp$acc = A3(func, key, value, $gren_lang$core$Dict$foldl$(func, acc, left)),
 			$temp$dict = right;
@@ -856,7 +867,7 @@ var _Array_initialize = F3(function (size, offset, func) {
 var _Array_get = F2(function (index, array) {
   var value = array.at(index);
 
-  if (value === undefined) {
+  if (typeof value === "undefined") {
     return $gren_lang$core$Maybe$Nothing;
   }
 
@@ -872,8 +883,16 @@ var _Array_set = F3(function (index, value, array) {
   }
 });
 
-var _Array_push = F2(function (value, array) {
-  return array.concat(value);
+var _Array_splice0 = F3(function (index, toRemove, array) {
+  return array.toSpliced(index, toRemove);
+});
+
+var _Array_splice1 = F4(function (index, toRemove, toAdd, array) {
+  return array.toSpliced(index, toRemove, toAdd);
+});
+
+var _Array_spliceN = F4(function (index, toRemove, toAdd, array) {
+  return array.toSpliced(index, toRemove, ...toAdd);
 });
 
 var _Array_foldl = F3(function (func, acc, array) {
@@ -922,9 +941,15 @@ var _Array_filter = F2(function (func, array) {
   return array.filter(func);
 });
 
+var _Array_indexedFilter = F2(function (func, array) {
+  return array.filter(function (value, index) {
+    return A2(func, index, value);
+  });
+});
+
 var _Array_flat = function (array) {
   return array.flat();
-}
+};
 
 var _Array_flatMap = F2(function (func, array) {
   return array.flatMap(func);
@@ -947,7 +972,7 @@ var _Array_findFirst = F2(function (pred, array) {
     var element = array[i];
 
     if (pred(element)) {
-      return $gren_lang$core$Maybe$Just(element);
+      return $gren_lang$core$Maybe$Just({ index: i, value: element });
     }
   }
 
@@ -959,7 +984,7 @@ var _Array_findLast = F2(function (pred, array) {
     var element = array[i];
 
     if (pred(element)) {
-      return $gren_lang$core$Maybe$Just(element);
+      return $gren_lang$core$Maybe$Just({ index: i, value: element });
     }
   }
 
@@ -1006,6 +1031,64 @@ var _Array_sortWith = F2(function (fn, array) {
     return ord === $gren_lang$core$Basics$EQ ? 0 : ord === $gren_lang$core$Basics$LT ? -1 : 1;
   });
 });
+
+class _Array_Builder {
+  constructor(target, finalized, array) {
+    this.target = target;
+    this.finalized = finalized;
+    this.array = array;
+  }
+}
+
+var _Array_emptyBuilder = function (capacity) {
+  return new _Array_Builder(0, false, new Array(capacity));
+};
+
+var _Array_pushToBuilder = F2(function (value, builder) {
+  var array = builder.array;
+  var target = builder.target;
+
+  if (builder.finalized) {
+    array = array.slice(0, target);
+  } else {
+    builder.finalized = true;
+  }
+
+  if (target < array.length) {
+    array[target] = value;
+  } else {
+    array.push(value);
+  }
+
+  return new _Array_Builder(target + 1, false, array);
+});
+
+var _Array_appendToBuilder = F2(function (array, builder) {
+  var newArray = _Array_fromBuilder(builder);
+
+  for (var i = 0; i < array.length; i++) {
+    newArray.push(array[i]);
+  }
+
+  return new _Array_Builder(newArray.length, false, newArray);
+});
+
+var _Array_toBuilder = function (array) {
+  return new _Array_Builder(array.length, true, array);
+};
+
+var _Array_fromBuilder = function (builder) {
+  var result = builder.array;
+
+  if (builder.finalized) {
+    result = result.slice(0, builder.target);
+  } else {
+    builder.finalized = true;
+    result.length = builder.target;
+  }
+
+  return result;
+};
 
 
 // EQUALITY
@@ -1068,6 +1151,13 @@ function _Utils_eqHelp(x, y, depth, stack) {
         return false;
       }
     }
+
+    return true;
+  }
+
+  if (x instanceof _Array_Builder) {
+    x = _Array_fromBuilder(x);
+    y = _Array_fromBuilder(y);
   }
 
   if (Array.isArray(x) && x.length !== y.length) {
@@ -1180,10 +1270,14 @@ var $gren_lang$core$Maybe$Just = function (a) {
 	return { $: 'Just', a: a };
 };
 var $gren_lang$core$Maybe$Nothing = { $: 'Nothing' };
-var $gren_lang$core$Array$pushLast = _Array_push;
+var $gren_lang$core$Array$length = _Array_length;
+var $gren_lang$core$Array$pushLast$ = function(value, array) {
+	return A4(_Array_splice1, $gren_lang$core$Array$length(array), 0, value, array);
+};
+var $gren_lang$core$Array$pushLast = F2($gren_lang$core$Array$pushLast$);
 var $gren_lang$core$Dict$keys = function(dict) {
 	return $gren_lang$core$Dict$foldl$(F3(function(key, value, keyArray) {
-				return A2($gren_lang$core$Array$pushLast, key, keyArray);
+				return $gren_lang$core$Array$pushLast$(key, keyArray);
 			}), [  ], dict);
 };
 var $gren_lang$core$Set$toArray = function(_v0) {
@@ -1223,10 +1317,10 @@ var _Json_decodeInt = _Json_decodePrim(function (value) {
   return typeof value !== "number"
     ? _Json_expecting("an INT", value)
     : Math.trunc(value) === value
-    ? $gren_lang$core$Result$Ok(value)
-    : isFinite(value) && !(value % 1)
-    ? $gren_lang$core$Result$Ok(value)
-    : _Json_expecting("an INT", value);
+      ? $gren_lang$core$Result$Ok(value)
+      : isFinite(value) && !(value % 1)
+        ? $gren_lang$core$Result$Ok(value)
+        : _Json_expecting("an INT", value);
 });
 
 var _Json_decodeBool = _Json_decodePrim(function (value) {
@@ -1249,8 +1343,8 @@ var _Json_decodeString = _Json_decodePrim(function (value) {
   return typeof value === "string"
     ? $gren_lang$core$Result$Ok(value)
     : value instanceof String
-    ? $gren_lang$core$Result$Ok(value + "")
-    : _Json_expecting("a STRING", value);
+      ? $gren_lang$core$Result$Ok(value + "")
+      : _Json_expecting("a STRING", value);
 });
 
 function _Json_decodeArray(decoder) {
@@ -1349,11 +1443,10 @@ var _Json_runOnString = F2(function (decoder, string) {
     return _Json_runHelp(decoder, value);
   } catch (e) {
     return $gren_lang$core$Result$Err(
-      A2(
-        $gren_lang$core$Json$Decode$Failure,
-        "This is not valid JSON! " + e.message,
-        _Json_wrap(string)
-      )
+      $gren_lang$core$Json$Decode$Failure({
+        message: "This is not valid JSON! " + e.message,
+        value: _Json_wrap(string),
+      }),
     );
   }
 });
@@ -1383,13 +1476,13 @@ function _Json_runHelp(decoder, value) {
       if (typeof value !== "object" || value === null || !(field in value)) {
         return _Json_expecting(
           "an OBJECT with a field named `" + field + "`",
-          value
+          value,
         );
       }
       var result = _Json_runHelp(decoder.b, value[field]);
       return $gren_lang$core$Result$isOk(result)
         ? result
-        : $gren_lang$core$Result$Err(A2($gren_lang$core$Json$Decode$Field, field, result.a));
+        : $gren_lang$core$Result$Err($gren_lang$core$Json$Decode$Field({ name: field, error: result.a }));
 
     case 6:
       var index = decoder.e;
@@ -1403,13 +1496,13 @@ function _Json_runHelp(decoder, value) {
             " but only see " +
             value.length +
             " entries",
-          value
+          value,
         );
       }
       var result = _Json_runHelp(decoder.b, value[index]);
       return $gren_lang$core$Result$isOk(result)
         ? result
-        : $gren_lang$core$Result$Err(A2($gren_lang$core$Json$Decode$Index, index, result.a));
+        : $gren_lang$core$Result$Err($gren_lang$core$Json$Decode$Index({ index: index, error: result.a }));
 
     case 7:
       if (typeof value !== "object" || value === null || _Json_isArray(value)) {
@@ -1421,7 +1514,9 @@ function _Json_runHelp(decoder, value) {
         if (value.hasOwnProperty(key)) {
           var result = _Json_runHelp(decoder.b, value[key]);
           if (!$gren_lang$core$Result$isOk(result)) {
-            return $gren_lang$core$Result$Err(A2($gren_lang$core$Json$Decode$Field, key, result.a));
+            return $gren_lang$core$Result$Err(
+              $gren_lang$core$Json$Decode$Field({ name: key, error: result.a }),
+            );
           }
           keyValuePairs.push({ key: key, value: result.a });
         }
@@ -1461,7 +1556,12 @@ function _Json_runHelp(decoder, value) {
       return $gren_lang$core$Result$Err($gren_lang$core$Json$Decode$OneOf(errors));
 
     case 1:
-      return $gren_lang$core$Result$Err(A2($gren_lang$core$Json$Decode$Failure, decoder.a, _Json_wrap(value)));
+      return $gren_lang$core$Result$Err(
+        $gren_lang$core$Json$Decode$Failure({
+          message: decoder.a,
+          value: _Json_wrap(value),
+        }),
+      );
 
     case 0:
       return $gren_lang$core$Result$Ok(decoder.a);
@@ -1474,7 +1574,7 @@ function _Json_runArrayDecoder(decoder, value) {
   for (var i = 0; i < len; i++) {
     var result = _Json_runHelp(decoder, value[i]);
     if (!$gren_lang$core$Result$isOk(result)) {
-      return $gren_lang$core$Result$Err(A2($gren_lang$core$Json$Decode$Index, i, result.a));
+      return $gren_lang$core$Result$Err($gren_lang$core$Json$Decode$Index({ index: i, error: result.a }));
     }
     array[i] = result.a;
   }
@@ -1490,7 +1590,10 @@ function _Json_isArray(value) {
 
 function _Json_expecting(type, value) {
   return $gren_lang$core$Result$Err(
-    A2($gren_lang$core$Json$Decode$Failure, "Expecting " + type, _Json_wrap(value))
+    $gren_lang$core$Json$Decode$Failure({
+      message: "Expecting " + type,
+      value: _Json_wrap(value),
+    }),
   );
 }
 
@@ -1602,18 +1705,15 @@ var _Json_encodeNull = _Json_wrap(null);
 var $gren_lang$core$Result$Err = function (a) {
 	return { $: 'Err', a: a };
 };
-var $gren_lang$core$Json$Decode$Failure$ = function (a, b) {
-	return { $: 'Failure', a: a, b: b };
+var $gren_lang$core$Json$Decode$Failure = function (a) {
+	return { $: 'Failure', a: a };
 };
-var $gren_lang$core$Json$Decode$Failure = F2($gren_lang$core$Json$Decode$Failure$);
-var $gren_lang$core$Json$Decode$Field$ = function (a, b) {
-	return { $: 'Field', a: a, b: b };
+var $gren_lang$core$Json$Decode$Field = function (a) {
+	return { $: 'Field', a: a };
 };
-var $gren_lang$core$Json$Decode$Field = F2($gren_lang$core$Json$Decode$Field$);
-var $gren_lang$core$Json$Decode$Index$ = function (a, b) {
-	return { $: 'Index', a: a, b: b };
+var $gren_lang$core$Json$Decode$Index = function (a) {
+	return { $: 'Index', a: a };
 };
-var $gren_lang$core$Json$Decode$Index = F2($gren_lang$core$Json$Decode$Index$);
 var $gren_lang$core$Result$Ok = function (a) {
 	return { $: 'Ok', a: a };
 };
@@ -1670,80 +1770,86 @@ var _Basics_xor = F2(function (a, b) {
 var $gren_lang$core$Basics$add = _Basics_add;
 
 
-var _String_cons = F2(function (chr, str) {
-  return chr + str;
+var _String_pushFirst = F2(function (char, string) {
+  return char + string;
 });
 
-function _String_uncons(string) {
+var _String_pushLast = F2(function (char, string) {
+  return string + char;
+});
+
+var _String_popFirst = function (string) {
   if (string.length <= 0) {
     return $gren_lang$core$Maybe$Nothing;
   }
 
-  return $gren_lang$core$Maybe$Just({ first: _Utils_chr(string[0]), rest: string.slice(1) });
-}
+  var firstPointNumber = string.codePointAt(0);
+  var firstChar = String.fromCodePoint(firstPointNumber);
+
+  return $gren_lang$core$Maybe$Just({
+    first: _Utils_chr(firstChar),
+    rest: string.slice(firstChar.length),
+  });
+};
+
+var _String_popLast = function (string) {
+  if (string.length <= 0) {
+    return $gren_lang$core$Maybe$Nothing;
+  }
+
+  var possibleLastPointIdx = string.length - 2;
+  var possibleLastPoint = string.codePointAt(possibleLastPointIdx);
+
+  if (possibleLastPoint === string.charCodeAt(possibleLastPointIdx)) {
+    // last char is a unit
+    return $gren_lang$core$Maybe$Just({
+      last: _Utils_chr(string[string.length - 1]),
+      rest: string.slice(string.length - 1),
+    });
+  }
+
+  // last char is a point
+  return $gren_lang$core$Maybe$Just({
+    last: _Utils_chr(String.fromCodePoint(possibleLastPoint)),
+    rest: string.slice(string.length - 2),
+  });
+};
 
 var _String_append = F2(function (a, b) {
   return a + b;
 });
 
-function _String_length(str) {
-  return str.length;
-}
-
-var _String_map = F2(function (func, string) {
-  var len = string.length;
-  var array = new Array(len);
-  var i = 0;
-  while (i < len) {
-    array[i] = func(_Utils_chr(string[i]));
-    i++;
-  }
-  return array.join("");
-});
-
-var _String_filter = F2(function (isGood, str) {
-  var arr = [];
-  var len = str.length;
-  var i = 0;
-  while (i < len) {
-    var char = str[i];
-    i++;
-
-    if (isGood(_Utils_chr(char))) {
-      arr.push(char);
+var _String_repeat = F2(function (num, chunk) {
+  try {
+    return chunk.repeat(num);
+  } catch (error) {
+    if (error.name === "RangeError") {
+      return "";
+    } else {
+      throw error;
     }
   }
-  return arr.join("");
 });
 
-function _String_reverse(str) {
-  var len = str.length;
-  var arr = new Array(len);
-  var i = 0;
-  while (i < len) {
-    arr[len - i] = str[i];
-    i++;
-  }
-  return arr.join("");
-}
-
 var _String_foldl = F3(function (func, state, string) {
-  var len = string.length;
-  var i = 0;
-  while (i < len) {
-    var char = string[i];
+  for (let char of string) {
     state = A2(func, _Utils_chr(char), state);
-    i++;
   }
+
   return state;
 });
 
 var _String_foldr = F3(function (func, state, string) {
-  var i = string.length;
-  while (i--) {
-    var char = string[i];
+  let reversed = [];
+
+  for (let char of string) {
+    reversed.unshift(char);
+  }
+
+  for (let char of reversed) {
     state = A2(func, _Utils_chr(char), state);
   }
+
   return state;
 });
 
@@ -1756,7 +1862,36 @@ var _String_join = F2(function (sep, strs) {
 });
 
 var _String_slice = F3(function (start, end, str) {
-  return str.slice(start, end);
+  if (start < 0) {
+    start = str.length + start;
+  }
+
+  if (end < 0) {
+    end = str.length + end;
+  }
+
+  if (start >= end) {
+    return "";
+  }
+
+  let index = 0;
+  let result = "";
+
+  for (let char of str) {
+    if (index < start) {
+      index++;
+      continue;
+    }
+
+    if (index >= end) {
+      break;
+    }
+
+    result += char;
+    index++;
+  }
+
+  return result;
 });
 
 function _String_trim(str) {
@@ -1788,25 +1923,13 @@ function _String_toLower(str) {
 }
 
 var _String_any = F2(function (isGood, string) {
-  var i = string.length;
-  while (i--) {
-    var char = string[i];
+  for (let char of string) {
     if (isGood(_Utils_chr(char))) {
       return true;
     }
   }
-  return false;
-});
 
-var _String_all = F2(function (isGood, string) {
-  var i = string.length;
-  while (i--) {
-    var char = string[i];
-    if (!isGood(_Utils_chr(char))) {
-      return false;
-    }
-  }
-  return true;
+  return false;
 });
 
 var _String_contains = F2(function (sub, str) {
@@ -1821,6 +1944,26 @@ var _String_endsWith = F2(function (sub, str) {
   return (
     str.length >= sub.length && str.lastIndexOf(sub) === str.length - sub.length
   );
+});
+
+var _String_indexOf = F2(function (sub, str) {
+  var ret = str.indexOf(sub);
+
+  if (ret > -1) {
+    return $gren_lang$core$Maybe$Just(ret);
+  }
+
+  return $gren_lang$core$Maybe$Nothing;
+});
+
+var _String_lastIndexOf = F2(function (sub, str) {
+  var ret = str.lastIndexOf(sub);
+
+  if (ret > -1) {
+    return $gren_lang$core$Maybe$Just(ret);
+  }
+
+  return $gren_lang$core$Maybe$Nothing;
 });
 
 var _String_indexes = F2(function (sub, str) {
@@ -1882,7 +2025,50 @@ function _String_toFloat(s) {
 function _String_fromArray(chars) {
   return chars.join("");
 }
-var $gren_lang$core$String$all = _String_all;
+
+// UNITS
+
+var _String_unitLength = function (str) {
+  return str.length;
+};
+
+var _String_getUnit = F2(function (index, str) {
+  var ret = str.at(index);
+
+  if (typeof ret === "undefined") {
+    return $gren_lang$core$Maybe$Nothing;
+  }
+
+  return $gren_lang$core$Maybe$Just(_Utils_chr(char));
+});
+
+var _String_foldlUnits = F3(function (fn, state, str) {
+  for (let i = 0; i < str.length; i++) {
+    state = A2(fn, str[i], state);
+  }
+
+  return state;
+});
+
+var _String_foldrUnits = F3(function (fn, state, str) {
+  for (let i = str.length - 1; i < 0; i--) {
+    state = A2(fn, str[i], state);
+  }
+
+  return state;
+});
+var $gren_lang$core$String$any = _String_any;
+var $gren_lang$core$Basics$composeL$ = function(g, f) {
+	return function(x) {
+		return g(f(x));
+	};
+};
+var $gren_lang$core$Basics$composeL = F2($gren_lang$core$Basics$composeL$);
+var $gren_lang$core$Basics$not = _Basics_not;
+var $gren_lang$core$String$all$ = function(isGood, str) {
+	return A2($gren_lang$core$String$any, $gren_lang$core$Basics$composeL$($gren_lang$core$Basics$not, isGood), str);
+};
+var $gren_lang$core$String$all = F2($gren_lang$core$String$all$);
 var $gren_lang$core$Basics$and = _Basics_and;
 var $gren_lang$core$Basics$append = _Utils_append;
 var $gren_lang$core$Json$Encode$encode = _Json_encode;
@@ -1897,41 +2083,11 @@ var $gren_lang$core$Basics$le = _Utils_le;
 
 
 function _Char_toCode(char) {
-  var code = char.charCodeAt(0);
-  if (0xd800 <= code && code <= 0xdbff) {
-    return (code - 0xd800) * 0x400 + char.charCodeAt(1) - 0xdc00 + 0x10000;
-  }
-  return code;
+  return char.codePointAt(0);
 }
 
 function _Char_fromCode(code) {
-  return _Utils_chr(
-    code < 0 || 0x10ffff < code
-      ? "\uFFFD"
-      : code <= 0xffff
-      ? String.fromCharCode(code)
-      : ((code -= 0x10000),
-        String.fromCharCode(
-          Math.floor(code / 0x400) + 0xd800,
-          (code % 0x400) + 0xdc00
-        ))
-  );
-}
-
-function _Char_toUpper(char) {
-  return _Utils_chr(char.toUpperCase());
-}
-
-function _Char_toLower(char) {
-  return _Utils_chr(char.toLowerCase());
-}
-
-function _Char_toLocaleUpper(char) {
-  return _Utils_chr(char.toLocaleUpperCase());
-}
-
-function _Char_toLocaleLower(char) {
-  return _Utils_chr(char.toLocaleLowerCase());
+  return _Utils_chr(String.fromCodePoint(code));
 }
 var $gren_lang$core$Char$toCode = _Char_toCode;
 var $gren_lang$core$Char$isLower = function(_char) {
@@ -1953,8 +2109,7 @@ var $gren_lang$core$Char$isDigit = function(_char) {
 var $gren_lang$core$Char$isAlphaNum = function(_char) {
 	return $gren_lang$core$Char$isLower(_char) || ($gren_lang$core$Char$isUpper(_char) || $gren_lang$core$Char$isDigit(_char));
 };
-var $gren_lang$core$Array$length = _Array_length;
-var $gren_lang$core$String$uncons = _String_uncons;
+var $gren_lang$core$String$popFirst = _String_popFirst;
 var $gren_lang$core$Json$Decode$errorOneOf$ = function(i, error) {
 	return '\n\n(' + ($gren_lang$core$String$fromInt(i + 1) + (') ' + $gren_lang$core$Json$Decode$indent($gren_lang$core$Json$Decode$errorToString(error))));
 };
@@ -1967,17 +2122,18 @@ var $gren_lang$core$Json$Decode$errorToStringHelp$ = function(error, context) {
 	while (true) {
 		switch (error.$) {
 			case 'Field':
-				var f = error.a;
-				var err = error.b;
+				var _v1 = error.a;
+				var f = _v1.name;
+				var err = _v1.error;
 				var isSimple = function () {
-					var _v1 = $gren_lang$core$String$uncons(f);
-					if (_v1.$ === 'Nothing') {
+					var _v2 = $gren_lang$core$String$popFirst(f);
+					if (_v2.$ === 'Nothing') {
 						return false;
 					} else {
-						var _v2 = _v1.a;
-						var _char = _v2.first;
-						var rest = _v2.rest;
-						return $gren_lang$core$Char$isAlpha(_char) && A2($gren_lang$core$String$all, $gren_lang$core$Char$isAlphaNum, rest);
+						var _v3 = _v2.a;
+						var _char = _v3.first;
+						var rest = _v3.rest;
+						return $gren_lang$core$Char$isAlpha(_char) && $gren_lang$core$String$all$($gren_lang$core$Char$isAlphaNum, rest);
 					}
 				}();
 				var fieldName = isSimple ? ('.' + f) : ('[\'' + (f + '\']'));
@@ -1987,8 +2143,9 @@ var $gren_lang$core$Json$Decode$errorToStringHelp$ = function(error, context) {
 				context = $temp$context;
 				continue errorToStringHelp;
 			case 'Index':
-				var i = error.a;
-				var err = error.b;
+				var _v4 = error.a;
+				var i = _v4.index;
+				var err = _v4.error;
 				var indexName = '[' + ($gren_lang$core$String$fromInt(i) + ']');
 				var $temp$error = err,
 				$temp$context = _Utils_ap([ indexName ], context);
@@ -2025,8 +2182,9 @@ var $gren_lang$core$Json$Decode$errorToStringHelp$ = function(error, context) {
 						return A2($gren_lang$core$String$join, '\n\n', _Utils_ap([ introduction ], A2($gren_lang$core$Array$indexedMap, $gren_lang$core$Json$Decode$errorOneOf, errors)));
 				}
 			default:
-				var msg = error.a;
-				var json = error.b;
+				var _v8 = error.a;
+				var msg = _v8.message;
+				var json = _v8.value;
 				var introduction = function () {
 					if (context.length === 0) {
 						return 'Problem with the given value:\n\n';
@@ -2051,7 +2209,7 @@ var $gren_lang$core$Result$isOk = function(result) {
 
 // PROGRAMS
 
-var _Platform_worker = F4(function (impl, flagDecoder, debugMetadata, args) {
+var _Platform_worker = F3(function (impl, flagDecoder, args) {
   return _Platform_initialize(
     flagDecoder,
     args,
@@ -2060,7 +2218,7 @@ var _Platform_worker = F4(function (impl, flagDecoder, debugMetadata, args) {
     impl.subscriptions,
     function () {
       return function () {};
-    }
+    },
   );
 });
 
@@ -2072,12 +2230,12 @@ function _Platform_initialize(
   init,
   update,
   subscriptions,
-  stepperBuilder
+  stepperBuilder,
 ) {
   var result = A2(
     _Json_run,
     flagDecoder,
-    _Json_wrap(args ? args["flags"] : undefined)
+    _Json_wrap(args ? args["flags"] : undefined),
   );
   $gren_lang$core$Result$isOk(result) ||
     _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
@@ -2167,12 +2325,12 @@ function _Platform_instantiateManager(info, sendToApp) {
         return cmdMap && subMap
           ? A4(onEffects, router, value.i, value.j, state)
           : A3(onEffects, router, cmdMap ? value.i : value.j, state);
-      })
+      }),
     );
   }
 
   return (router.h = _Scheduler_rawSpawn(
-    A2(_Scheduler_andThen, loop, info.b)
+    A2(_Scheduler_andThen, loop, info.b),
   ));
 }
 
@@ -2204,10 +2362,10 @@ function _Platform_leaf(home) {
   };
 }
 
-function _Platform_batch(list) {
+function _Platform_batch(array) {
   return {
     $: 2,
-    m: list,
+    m: array,
   };
 }
 
@@ -2361,21 +2519,19 @@ function _Platform_setupOutgoingPort(name) {
   var init = _Process_sleep(0);
 
   _Platform_effectManagers[name].b = init;
-  _Platform_effectManagers[name].c = F3(function (
-    router,
-    cmdArray,
-    state
-  ) {
-    for (var idx = 0; idx < cmdArray.length; idx++) {
-      // grab a separate reference to subs in case unsubscribe is called
-      var currentSubs = subs;
-      var value = _Json_unwrap(converter(cmdArray[idx]));
-      for (var subIdx = 0; subIdx < currentSubs.length; subIdx++) {
-        currentSubs[subIdx](value);
+  _Platform_effectManagers[name].c = F3(
+    function (router, cmdArray, state) {
+      for (var idx = 0; idx < cmdArray.length; idx++) {
+        // grab a separate reference to subs in case unsubscribe is called
+        var currentSubs = subs;
+        var value = _Json_unwrap(converter(cmdArray[idx]));
+        for (var subIdx = 0; subIdx < currentSubs.length; subIdx++) {
+          currentSubs[subIdx](value);
+        }
       }
-    }
-    return init;
-  });
+      return init;
+    },
+  );
 
   // PUBLIC API
 
@@ -2426,14 +2582,12 @@ function _Platform_setupIncomingPort(name, sendToApp) {
   var init = _Scheduler_succeed(null);
 
   _Platform_effectManagers[name].b = init;
-  _Platform_effectManagers[name].c = F3(function (
-    router,
-    subArray,
-    state
-  ) {
-    subs = subArray;
-    return init;
-  });
+  _Platform_effectManagers[name].c = F3(
+    function (router, subArray, state) {
+      subs = subArray;
+      return init;
+    },
+  );
 
   // PUBLIC API
 
@@ -2487,7 +2641,7 @@ function _Platform_mergeExportsDebug(moduleName, obj, exports) {
         : _Platform_mergeExportsDebug(
             moduleName + "." + name,
             obj[name],
-            exports[name]
+            exports[name],
           )
       : (obj[name] = exports[name]);
   }
@@ -2676,10 +2830,8 @@ function _VirtualDom_appendChild(parent, child) {
   parent.appendChild(child);
 }
 
-var _VirtualDom_init = F4(function (
+var _VirtualDom_init = F2(function (
   virtualNode,
-  flagDecoder,
-  debugMetadata,
   args
 ) {
   // NOTE: this function needs _Platform_export available to work
@@ -2710,51 +2862,55 @@ function _VirtualDom_text(string) {
 
 // NODE
 
-var _VirtualDom_nodeNS = F4(function (namespace, tag, factList, kids) {
-  for (var descendantsCount = 0, i = 0; i < kids.length; i++) {
-    var kid = kids[i];
-    descendantsCount += kid.b || 0;
-  }
+var _VirtualDom_nodeNS = F2(function (namespace, tag) {
+  return F2(function(factList, kids) {
+    for (var descendantsCount = 0, i = 0; i < kids.length; i++) {
+      var kid = kids[i];
+      descendantsCount += kid.b || 0;
+    }
 
-  descendantsCount += kids.length;
+    descendantsCount += kids.length;
 
-  return {
-    $: 1,
-    c: tag,
-    d: _VirtualDom_organizeFacts(factList),
-    e: kids,
-    f: namespace,
-    b: descendantsCount,
-  };
+    return {
+      $: 1,
+      c: tag,
+      d: _VirtualDom_organizeFacts(factList),
+      e: kids,
+      f: namespace,
+      b: descendantsCount,
+    };
+  });
 });
 
-var _VirtualDom_node = F3(function (tag, factList, kidList) {
-  return A4(_VirtualDom_nodeNS, undefined, tag, factList, kidList);
-});
+var _VirtualDom_node = function (tag) {
+  return _VirtualDom_nodeNS.f(undefined, tag);
+};
 
 // KEYED NODE
 
-var _VirtualDom_keyedNodeNS = F4(function (namespace, tag, factList, kids) {
-  for (var descendantsCount = 0, i = 0; i < kids.length; i++) {
-    var kid = kids[i];
-    descendantsCount += kid.node.b || 0;
-  }
+var _VirtualDom_keyedNodeNS = F2(function (namespace, tag) {
+  return F2(function (factList, kids) {
+    for (var descendantsCount = 0, i = 0; i < kids.length; i++) {
+      var kid = kids[i];
+      descendantsCount += kid.node.b || 0;
+    }
 
-  descendantsCount += kids.length;
+    descendantsCount += kids.length;
 
-  return {
-    $: 2,
-    c: tag,
-    d: _VirtualDom_organizeFacts(factList),
-    e: kids,
-    f: namespace,
-    b: descendantsCount,
-  };
+    return {
+      $: 2,
+      c: tag,
+      d: _VirtualDom_organizeFacts(factList),
+      e: kids,
+      f: namespace,
+      b: descendantsCount,
+    };
+  });
 });
 
-var _VirtualDom_keyedNode = F3(function (tag, factList, kidList) {
-  return A4(_VirtualDom_keyedNodeNS, undefined, tag, factList, kidList);
-});
+var _VirtualDom_keyedNode = function (tag) {
+  return _VirtualDom_keyedNodeNS.f(undefined, tag);
+};
 
 // CUSTOM
 
@@ -4177,22 +4333,22 @@ var $gren_lang$core$Basics$apL$ = function(f, x) {
 };
 var $gren_lang$core$Basics$apL = F2($gren_lang$core$Basics$apL$);
 var $gren_lang$core$String$contains = _String_contains;
-var $gren_lang$core$String$length = _String_length;
 var $gren_lang$core$Basics$lt = _Utils_lt;
 var $gren_lang$core$String$slice = _String_slice;
-var $gren_lang$core$String$dropLeft$ = function(n, string) {
-	return (n < 1) ? string : A3($gren_lang$core$String$slice, n, $gren_lang$core$String$length(string), string);
+var $gren_lang$core$String$unitLength = _String_unitLength;
+var $gren_lang$core$String$dropFirst$ = function(n, string) {
+	return (n < 1) ? string : A3($gren_lang$core$String$slice, n, $gren_lang$core$String$unitLength(string), string);
 };
-var $gren_lang$core$String$dropLeft = F2($gren_lang$core$String$dropLeft$);
+var $gren_lang$core$String$dropFirst = F2($gren_lang$core$String$dropFirst$);
 var $gren_lang$core$String$indices = _String_indexes;
 var $gren_lang$core$Basics$eq = _Utils_equal;
 var $gren_lang$core$String$isEmpty = function(string) {
 	return string === '';
 };
-var $gren_lang$core$String$left$ = function(n, string) {
+var $gren_lang$core$String$takeFirst$ = function(n, string) {
 	return (n < 1) ? '' : A3($gren_lang$core$String$slice, 0, n, string);
 };
-var $gren_lang$core$String$left = F2($gren_lang$core$String$left$);
+var $gren_lang$core$String$takeFirst = F2($gren_lang$core$String$takeFirst$);
 var $gren_lang$core$String$toInt = _String_toInt;
 var $gren_lang$url$Url$chompBeforePath$ = function(protocol, path, params, frag, str) {
 	if ($gren_lang$core$String$isEmpty(str) || A2($gren_lang$core$String$contains, '@', str)) {
@@ -4204,12 +4360,12 @@ var $gren_lang$url$Url$chompBeforePath$ = function(protocol, path, params, frag,
 				return $gren_lang$core$Maybe$Just({ fragment: frag, host: str, path: path, port_: $gren_lang$core$Maybe$Nothing, protocol: protocol, query: params });
 			case 1:
 				var i = _v0[0];
-				var _v1 = $gren_lang$core$String$toInt($gren_lang$core$String$dropLeft$(i + 1, str));
+				var _v1 = $gren_lang$core$String$toInt($gren_lang$core$String$dropFirst$(i + 1, str));
 				if (_v1.$ === 'Nothing') {
 					return $gren_lang$core$Maybe$Nothing;
 				} else {
 					var port_ = _v1;
-					return $gren_lang$core$Maybe$Just({ fragment: frag, host: $gren_lang$core$String$left$(i, str), path: path, port_: port_, protocol: protocol, query: params });
+					return $gren_lang$core$Maybe$Just({ fragment: frag, host: $gren_lang$core$String$takeFirst$(i, str), path: path, port_: port_, protocol: protocol, query: params });
 				}
 			default:
 				return $gren_lang$core$Maybe$Nothing;
@@ -4227,7 +4383,7 @@ var $gren_lang$url$Url$chompBeforeQuery$ = function(protocol, params, frag, str)
 			return $gren_lang$url$Url$chompBeforePath$(protocol, '/', params, frag, str);
 		} else {
 			var i = _v0.a;
-			return $gren_lang$url$Url$chompBeforePath$(protocol, $gren_lang$core$String$dropLeft$(i, str), params, frag, $gren_lang$core$String$left$(i, str));
+			return $gren_lang$url$Url$chompBeforePath$(protocol, $gren_lang$core$String$dropFirst$(i, str), params, frag, $gren_lang$core$String$takeFirst$(i, str));
 		}
 	}
 };
@@ -4241,7 +4397,7 @@ var $gren_lang$url$Url$chompBeforeFragment$ = function(protocol, frag, str) {
 			return $gren_lang$url$Url$chompBeforeQuery$(protocol, $gren_lang$core$Maybe$Nothing, frag, str);
 		} else {
 			var i = _v0.a;
-			return $gren_lang$url$Url$chompBeforeQuery$(protocol, $gren_lang$core$Maybe$Just($gren_lang$core$String$dropLeft$(i + 1, str)), frag, $gren_lang$core$String$left$(i, str));
+			return $gren_lang$url$Url$chompBeforeQuery$(protocol, $gren_lang$core$Maybe$Just($gren_lang$core$String$dropFirst$(i + 1, str)), frag, $gren_lang$core$String$takeFirst$(i, str));
 		}
 	}
 };
@@ -4255,14 +4411,14 @@ var $gren_lang$url$Url$chompAfterProtocol$ = function(protocol, str) {
 			return $gren_lang$url$Url$chompBeforeFragment$(protocol, $gren_lang$core$Maybe$Nothing, str);
 		} else {
 			var i = _v0.a;
-			return $gren_lang$url$Url$chompBeforeFragment$(protocol, $gren_lang$core$Maybe$Just($gren_lang$core$String$dropLeft$(i + 1, str)), $gren_lang$core$String$left$(i, str));
+			return $gren_lang$url$Url$chompBeforeFragment$(protocol, $gren_lang$core$Maybe$Just($gren_lang$core$String$dropFirst$(i + 1, str)), $gren_lang$core$String$takeFirst$(i, str));
 		}
 	}
 };
 var $gren_lang$url$Url$chompAfterProtocol = F2($gren_lang$url$Url$chompAfterProtocol$);
 var $gren_lang$core$String$startsWith = _String_startsWith;
 var $gren_lang$url$Url$fromString = function(str) {
-	return A2($gren_lang$core$String$startsWith, 'http://', str) ? $gren_lang$url$Url$chompAfterProtocol$($gren_lang$url$Url$Http, $gren_lang$core$String$dropLeft$(7, str)) : (A2($gren_lang$core$String$startsWith, 'https://', str) ? $gren_lang$url$Url$chompAfterProtocol$($gren_lang$url$Url$Https, $gren_lang$core$String$dropLeft$(8, str)) : $gren_lang$core$Maybe$Nothing);
+	return A2($gren_lang$core$String$startsWith, 'http://', str) ? $gren_lang$url$Url$chompAfterProtocol$($gren_lang$url$Url$Http, $gren_lang$core$String$dropFirst$(7, str)) : (A2($gren_lang$core$String$startsWith, 'https://', str) ? $gren_lang$url$Url$chompAfterProtocol$($gren_lang$url$Url$Https, $gren_lang$core$String$dropFirst$(8, str)) : $gren_lang$core$Maybe$Nothing);
 };
 var $gren_lang$core$Basics$never = function(_v0) {
 	never:
@@ -4299,9 +4455,8 @@ var $gren_lang$core$Task$map2$ = function(func, taskA, taskB) {
 		}, taskA);
 };
 var $gren_lang$core$Task$map2 = F3($gren_lang$core$Task$map2$);
-var $gren_lang$core$Array$prepend = _Array_append;
 var $gren_lang$core$Array$pushFirst$ = function(value, array) {
-	return A2($gren_lang$core$Array$prepend, [ value ], array);
+	return A4(_Array_splice1, 0, 0, value, array);
 };
 var $gren_lang$core$Array$pushFirst = F2($gren_lang$core$Array$pushFirst$);
 var $gren_lang$core$Task$sequence = function(tasks) {
@@ -4352,13 +4507,9 @@ var $gren_lang$browser$WebStorage$AccessError = { $: 'AccessError' };
 var $author$project$Main$ShowContents = function (a) {
 	return { $: 'ShowContents', a: a };
 };
-var $gren_lang$core$Basics$composeL$ = function(g, f, x) {
-	return g(f(x));
-};
-var $gren_lang$core$Basics$composeL = F3($gren_lang$core$Basics$composeL$);
 var $gren_lang$core$Task$onError = _Scheduler_onError;
 var $gren_lang$core$Task$attempt$ = function(resultToMessage, task) {
-	return $gren_lang$core$Task$command($gren_lang$core$Task$Perform(A2($gren_lang$core$Task$onError, A2($gren_lang$core$Basics$composeL, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Err), A2($gren_lang$core$Task$andThen, A2($gren_lang$core$Basics$composeL, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Ok), task))));
+	return $gren_lang$core$Task$command($gren_lang$core$Task$Perform(A2($gren_lang$core$Task$onError, $gren_lang$core$Basics$composeL$($gren_lang$core$Basics$composeL$($gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Err), A2($gren_lang$core$Task$andThen, $gren_lang$core$Basics$composeL$($gren_lang$core$Basics$composeL$($gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Ok), task))));
 };
 var $gren_lang$core$Task$attempt = F2($gren_lang$core$Task$attempt$);
 var $gren_lang$core$Array$initialize = _Array_initialize;
@@ -4465,7 +4616,7 @@ var $gren_lang$browser$Internal$WebStorage$length = _WebStorage_length;
 var $gren_lang$browser$LocalStorage$length = $gren_lang$browser$Internal$WebStorage$length(true);
 var $gren_lang$core$Task$fail = _Scheduler_fail;
 var $gren_lang$core$Task$mapError$ = function(convert, task) {
-	return A2($gren_lang$core$Task$onError, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$fail, convert), task);
+	return A2($gren_lang$core$Task$onError, $gren_lang$core$Basics$composeL$($gren_lang$core$Task$fail, convert), task);
 };
 var $gren_lang$core$Task$mapError = F2($gren_lang$core$Task$mapError$);
 var $author$project$Main$refreshContent = $gren_lang$core$Task$attempt$($author$project$Main$ShowContents, A2($gren_lang$core$Task$andThen, function(length) {
@@ -4481,14 +4632,12 @@ var $gren_lang$core$Platform$Sub$none = $gren_lang$core$Platform$Sub$batch([  ])
 var $author$project$Main$ClearedLocalStorage = function (a) {
 	return { $: 'ClearedLocalStorage', a: a };
 };
-var $author$project$Main$GotFromLocalStorage$ = function (a, b) {
-	return { $: 'GotFromLocalStorage', a: a, b: b };
+var $author$project$Main$GotFromLocalStorage = function (a) {
+	return { $: 'GotFromLocalStorage', a: a };
 };
-var $author$project$Main$GotFromLocalStorage = F2($author$project$Main$GotFromLocalStorage$);
-var $author$project$Main$RemovedFromLocalStorage$ = function (a, b) {
-	return { $: 'RemovedFromLocalStorage', a: a, b: b };
+var $author$project$Main$RemovedFromLocalStorage = function (a) {
+	return { $: 'RemovedFromLocalStorage', a: a };
 };
-var $author$project$Main$RemovedFromLocalStorage = F2($author$project$Main$RemovedFromLocalStorage$);
 var $author$project$Main$SavedToLocalStorage = function (a) {
 	return { $: 'SavedToLocalStorage', a: a };
 };
@@ -4518,18 +4667,19 @@ var $author$project$Main$update$ = function(msg, model) {
 			var value = msg.a;
 			return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { inputValue: value }) };
 		case 'SaveToLocalStorage':
-			var key = msg.a;
-			var value = msg.b;
+			var _v1 = msg.a;
+			var key = _v1.key;
+			var value = _v1.value;
 			return { command: $gren_lang$core$Task$attempt$($author$project$Main$SavedToLocalStorage, $gren_lang$browser$LocalStorage$set$(key, value)), model: model };
 		case 'SavedToLocalStorage':
 			if (msg.a.$ === 'Ok') {
 				return { command: $author$project$Main$refreshContent, model: _Utils_update(model, { inputKey: '', inputValue: '', message: 'Saved <' + (model.inputKey + (', ' + (model.inputValue + '> to localstorage'))) }) };
 			} else {
 				if (msg.a.a.$ === 'QuotaExceeded') {
-					var _v1 = msg.a.a;
+					var _v2 = msg.a.a;
 					return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Couldn\'t write to local storage as we\'ve used our quota' }) };
 				} else {
-					var _v2 = msg.a.a;
+					var _v3 = msg.a.a;
 					return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Failed to write to localstorage' }) };
 				}
 			}
@@ -4544,32 +4694,40 @@ var $author$project$Main$update$ = function(msg, model) {
 			}
 		case 'GetFromLocalStorage':
 			var key = msg.a;
-			return { command: $gren_lang$core$Task$attempt$($author$project$Main$GotFromLocalStorage(key), $gren_lang$browser$LocalStorage$get(key)), model: _Utils_update(model, { inputKey: '', inputValue: '' }) };
+			return { command: $gren_lang$core$Task$attempt$(function(res) {
+					return $author$project$Main$GotFromLocalStorage({ key: key, result: res });
+				}, $gren_lang$browser$LocalStorage$get(key)), model: _Utils_update(model, { inputKey: '', inputValue: '' }) };
 		case 'GotFromLocalStorage':
-			if (msg.b.$ === 'Ok') {
-				var key = msg.a;
-				var value = msg.b.a;
+			if (msg.a.result.$ === 'Ok') {
+				var _v4 = msg.a;
+				var key = _v4.key;
+				var value = _v4.result.a;
 				return { command: $author$project$Main$refreshContent, model: _Utils_update(model, { message: 'Got <' + (key + (', ' + (value + '> from localstorage.'))) }) };
 			} else {
-				if (msg.b.a.$ === 'NoValue') {
-					var key = msg.a;
-					var _v3 = msg.b.a;
+				if (msg.a.result.a.$ === 'NoValue') {
+					var _v5 = msg.a;
+					var key = _v5.key;
+					var _v6 = _v5.result.a;
 					return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Found no items with key \"' + (key + '\"') }) };
 				} else {
-					var _v4 = msg.b.a;
+					var _v7 = msg.a.result.a;
 					return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Failed to read from localstorage' }) };
 				}
 			}
 		case 'RemoveFromLocalStorage':
 			var key = msg.a;
-			return { command: $gren_lang$core$Task$attempt$($author$project$Main$RemovedFromLocalStorage(key), $gren_lang$browser$LocalStorage$remove(key)), model: _Utils_update(model, { inputKey: '', inputValue: '' }) };
+			return { command: $gren_lang$core$Task$attempt$(function(res) {
+					return $author$project$Main$RemovedFromLocalStorage({ key: key, value: res });
+				}, $gren_lang$browser$LocalStorage$remove(key)), model: _Utils_update(model, { inputKey: '', inputValue: '' }) };
 		case 'RemovedFromLocalStorage':
-			if (msg.b.$ === 'Ok') {
-				var key = msg.a;
+			if (msg.a.value.$ === 'Ok') {
+				var _v8 = msg.a;
+				var key = _v8.key;
 				return { command: $author$project$Main$refreshContent, model: _Utils_update(model, { message: 'Removed item  with key \"' + (key + '\" from localstorage.') }) };
 			} else {
-				var key = msg.a;
-				var err = msg.b.a;
+				var _v9 = msg.a;
+				var key = _v9.key;
+				var err = _v9.value.a;
 				return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Failed to remove item with key \"' + (key + '\" from localstorage') }) };
 			}
 		default:
@@ -4577,7 +4735,7 @@ var $author$project$Main$update$ = function(msg, model) {
 				var keys = msg.a.a;
 				return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { keys: keys }) };
 			} else {
-				var _v5 = msg.a.a;
+				var _v10 = msg.a.a;
 				return { command: $gren_lang$core$Platform$Cmd$none, model: _Utils_update(model, { message: 'Failed to retrieve contents of local storage:' }) };
 			}
 	}
@@ -4590,10 +4748,9 @@ var $author$project$Main$GetFromLocalStorage = function (a) {
 var $author$project$Main$RemoveFromLocalStorage = function (a) {
 	return { $: 'RemoveFromLocalStorage', a: a };
 };
-var $author$project$Main$SaveToLocalStorage$ = function (a, b) {
-	return { $: 'SaveToLocalStorage', a: a, b: b };
+var $author$project$Main$SaveToLocalStorage = function (a) {
+	return { $: 'SaveToLocalStorage', a: a };
 };
-var $author$project$Main$SaveToLocalStorage = F2($author$project$Main$SaveToLocalStorage$);
 var $author$project$Main$SetKey = function (a) {
 	return { $: 'SetKey', a: a };
 };
@@ -4660,12 +4817,12 @@ var $author$project$Main$viewKey = function(key) {
 	return A2($gren_lang$browser$Html$li, [  ], [ $gren_lang$browser$Html$text(key) ]);
 };
 var $author$project$Main$view = function(model) {
-	return A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$input, [ $gren_lang$browser$Html$Attributes$placeholder('Key:'), $gren_lang$browser$Html$Attributes$value(model.inputKey), $gren_lang$browser$Html$Events$onInput($author$project$Main$SetKey) ], [  ]), A2($gren_lang$browser$Html$input, [ $gren_lang$browser$Html$Attributes$placeholder('Value:'), $gren_lang$browser$Html$Attributes$value(model.inputValue), $gren_lang$browser$Html$Events$onInput($author$project$Main$SetValue) ], [  ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$SaveToLocalStorage$(model.inputKey, model.inputValue)) ], [ $gren_lang$browser$Html$text('💾 Save') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$GetFromLocalStorage(model.inputKey)) ], [ $gren_lang$browser$Html$text('🔎 Get') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$RemoveFromLocalStorage(model.inputKey)) ], [ $gren_lang$browser$Html$text('🗑 Remove') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$ClearLocalStorage) ], [ $gren_lang$browser$Html$text('🧹 Clear') ]) ]), A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$p, [  ], [ $gren_lang$browser$Html$text(model.message) ]) ]), A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$p, [  ], [ $gren_lang$browser$Html$text('There are currently ' + ($gren_lang$core$String$fromInt($gren_lang$core$Array$length(model.keys)) + ' keys in local storage:')) ]) ]), A2($gren_lang$browser$Html$ul, [  ], A2($gren_lang$core$Array$map, $author$project$Main$viewKey, model.keys)) ]);
+	return A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$input, [ $gren_lang$browser$Html$Attributes$placeholder('Key:'), $gren_lang$browser$Html$Attributes$value(model.inputKey), $gren_lang$browser$Html$Events$onInput($author$project$Main$SetKey) ], [  ]), A2($gren_lang$browser$Html$input, [ $gren_lang$browser$Html$Attributes$placeholder('Value:'), $gren_lang$browser$Html$Attributes$value(model.inputValue), $gren_lang$browser$Html$Events$onInput($author$project$Main$SetValue) ], [  ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$SaveToLocalStorage({ key: model.inputKey, value: model.inputValue })) ], [ $gren_lang$browser$Html$text('💾 Save') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$GetFromLocalStorage(model.inputKey)) ], [ $gren_lang$browser$Html$text('🔎 Get') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$RemoveFromLocalStorage(model.inputKey)) ], [ $gren_lang$browser$Html$text('🗑 Remove') ]), A2($gren_lang$browser$Html$button, [ $gren_lang$browser$Html$Attributes$type_('button'), $gren_lang$browser$Html$Events$onClick($author$project$Main$ClearLocalStorage) ], [ $gren_lang$browser$Html$text('🧹 Clear') ]) ]), A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$p, [  ], [ $gren_lang$browser$Html$text(model.message) ]) ]), A2($gren_lang$browser$Html$div, [  ], [ A2($gren_lang$browser$Html$p, [  ], [ $gren_lang$browser$Html$text('There are currently ' + ($gren_lang$core$String$fromInt($gren_lang$core$Array$length(model.keys)) + ' keys in local storage:')) ]) ]), A2($gren_lang$browser$Html$ul, [  ], A2($gren_lang$core$Array$map, $author$project$Main$viewKey, model.keys)) ]);
 };
 var $author$project$Main$main = $gren_lang$browser$Browser$element({ init: $author$project$Main$init, subscriptions: function(_v0) {
 		return $gren_lang$core$Platform$Sub$none;
 	}, update: $author$project$Main$update, view: $author$project$Main$view });
-_Platform_export({'Main':{'init':$author$project$Main$main($gren_lang$core$Json$Decode$succeed({  }))(0)}});}(this.module ? this.module.exports : this));
+_Platform_export({'Main':{'init':$author$project$Main$main($gren_lang$core$Json$Decode$succeed({  }))}});}(this.module ? this.module.exports : this));
 
   var app = Gren.Main.init({ node: document.getElementById("gren") });
 }

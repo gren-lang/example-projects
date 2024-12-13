@@ -40,7 +40,7 @@ type Msg
 
 update : Msg -> Model -> Model
 update msg model =
-    case msg of
+    when msg is
         SetCelsius value ->
             { celsius = value
             , fahrenheit = 
