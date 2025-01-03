@@ -10,7 +10,8 @@ browser_examples := \
 
 node_examples := \
 	cat\
-	http-server
+	http-server\
+	read_stdin
 
 all_examples := $(browser_examples) $(node_examples)
 
