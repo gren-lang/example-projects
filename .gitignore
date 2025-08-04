@@ -1,6 +1,7 @@
 .gren
 app
 node_modules
+.envrc
 
 .idea
 .DS_Store
