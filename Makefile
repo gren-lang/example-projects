@@ -31,9 +31,9 @@ clean:
 $(browser_examples):
 	@echo "Compiling $@"
 	@cd "./$@/";\
-	npx gren make ./src/Main.gren --output=./Example.html
+	npx gren make Main --output=./Example.html
 
 $(node_examples):
 	@echo "Compiling $@"
 	@cd "./$@/";\
-	npx gren make ./src/Main.gren --optimize --output=./app
+	npx gren make Main --optimize --output=./app

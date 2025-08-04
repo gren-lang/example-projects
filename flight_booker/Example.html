@@ -21,36 +21,43 @@ function F(arity, fun, wrapper) {
   return wrapper;
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 function F2(fun) {
   return F(2, fun, function(a) { return function(b) { return fun(a,b); }; })
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F3(fun) {
   return F(3, fun, function(a) {
     return function(b) { return function(c) { return fun(a, b, c); }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F4(fun) {
   return F(4, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return fun(a, b, c, d); }; }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F5(fun) {
   return F(5, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return function(e) { return fun(a, b, c, d, e); }; }; }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F6(fun) {
   return F(6, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return function(e) { return function(f) {
     return fun(a, b, c, d, e, f); }; }; }; }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F7(fun) {
   return F(7, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return function(e) { return function(f) {
     return function(g) { return fun(a, b, c, d, e, f, g); }; }; }; }; }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F8(fun) {
   return F(8, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return function(e) { return function(f) {
@@ -58,6 +65,7 @@ function F8(fun) {
     return fun(a, b, c, d, e, f, g, h); }; }; }; }; }; }; };
   });
 }
+/* @__NO_SIDE_EFFECTS__ */
 function F9(fun) {
   return F(9, fun, function(a) { return function(b) { return function(c) {
     return function(d) { return function(e) { return function(f) {
@@ -66,27 +74,35 @@ function F9(fun) {
   });
 }
 
+/* @__NO_SIDE_EFFECTS__ */
 function A2(fun, a, b) {
   return fun.a === 2 ? fun.f(a, b) : fun(a)(b);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A3(fun, a, b, c) {
   return fun.a === 3 ? fun.f(a, b, c) : fun(a)(b)(c);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A4(fun, a, b, c, d) {
   return fun.a === 4 ? fun.f(a, b, c, d) : fun(a)(b)(c)(d);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A5(fun, a, b, c, d, e) {
   return fun.a === 5 ? fun.f(a, b, c, d, e) : fun(a)(b)(c)(d)(e);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A6(fun, a, b, c, d, e, f) {
   return fun.a === 6 ? fun.f(a, b, c, d, e, f) : fun(a)(b)(c)(d)(e)(f);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A7(fun, a, b, c, d, e, f, g) {
   return fun.a === 7 ? fun.f(a, b, c, d, e, f, g) : fun(a)(b)(c)(d)(e)(f)(g);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A8(fun, a, b, c, d, e, f, g, h) {
   return fun.a === 8 ? fun.f(a, b, c, d, e, f, g, h) : fun(a)(b)(c)(d)(e)(f)(g)(h);
 }
+/* @__NO_SIDE_EFFECTS__ */
 function A9(fun, a, b, c, d, e, f, g, h, i) {
   return fun.a === 9 ? fun.f(a, b, c, d, e, f, g, h, i) : fun(a)(b)(c)(d)(e)(f)(g)(h)(i);
 }
@@ -1189,11 +1205,11 @@ var _Browser_element = F3(function (impl, flagDecoder, args) {
           domNode,
           currNode,
           patches,
-          sendToApp
+          sendToApp,
         );
         currNode = nextNode;
       });
-    }
+    },
   );
 });
 
@@ -1221,14 +1237,14 @@ var _Browser_document = F3(function (impl, flagDecoder, args) {
           bodyNode,
           currNode,
           patches,
-          sendToApp
+          sendToApp,
         );
         currNode = nextNode;
         _VirtualDom_divertHrefToApp = 0;
         title !== doc.title &&
           (_VirtualDom_doc.title = title = doc.title);
       });
-    }
+    },
   );
 });
 
@@ -1310,8 +1326,8 @@ function _Browser_application(impl) {
                 curr.host === next.host &&
                 curr.port_.a === next.port_.a
                 ? $gren_lang$browser$Browser$Internal(next)
-                : $gren_lang$browser$Browser$External(href)
-            )
+                : $gren_lang$browser$Browser$External(href),
+            ),
           );
         }
       });
@@ -1336,7 +1352,7 @@ var _Browser_go = F2(function (key, n) {
     _Scheduler_binding(function () {
       n && history.go(n);
       key();
-    })
+    }),
   );
 });
 
@@ -1347,7 +1363,7 @@ var _Browser_pushUrl = F2(function (key, url) {
     _Scheduler_binding(function () {
       history.pushState({}, "", url);
       key();
-    })
+    }),
   );
 });
 
@@ -1358,7 +1374,7 @@ var _Browser_replaceUrl = F2(function (key, url) {
     _Scheduler_binding(function () {
       history.replaceState({}, "", url);
       key();
-    })
+    }),
   );
 });
 
@@ -1382,12 +1398,12 @@ var _Browser_on = F3(function (node, eventName, sendToSelf) {
       node.addEventListener(
         eventName,
         handler,
-        _VirtualDom_passiveSupported && { passive: true }
+        _VirtualDom_passiveSupported && { passive: true },
       );
       return function () {
         node.removeEventListener(eventName, handler);
       };
-    })
+    }),
   );
 });
 
@@ -1402,12 +1418,12 @@ function _Browser_visibilityInfo() {
   return typeof _VirtualDom_doc.hidden !== "undefined"
     ? { hidden: "hidden", change: "visibilitychange" }
     : typeof _VirtualDom_doc.mozHidden !== "undefined"
-    ? { hidden: "mozHidden", change: "mozvisibilitychange" }
-    : typeof _VirtualDom_doc.msHidden !== "undefined"
-    ? { hidden: "msHidden", change: "msvisibilitychange" }
-    : typeof _VirtualDom_doc.webkitHidden !== "undefined"
-    ? { hidden: "webkitHidden", change: "webkitvisibilitychange" }
-    : { hidden: "hidden", change: "visibilitychange" };
+      ? { hidden: "mozHidden", change: "mozvisibilitychange" }
+      : typeof _VirtualDom_doc.msHidden !== "undefined"
+        ? { hidden: "msHidden", change: "msvisibilitychange" }
+        : typeof _VirtualDom_doc.webkitHidden !== "undefined"
+          ? { hidden: "webkitHidden", change: "webkitvisibilitychange" }
+          : { hidden: "hidden", change: "visibilitychange" };
 }
 
 // ANIMATION FRAMES
@@ -1439,7 +1455,7 @@ function _Browser_withNode(id, doStuff) {
       callback(
         node
           ? _Scheduler_succeed(doStuff(node))
-          : _Scheduler_fail($gren_lang$browser$Browser$Dom$NotFound(id))
+          : _Scheduler_fail($gren_lang$browser$Browser$Dom$NotFound(id)),
       );
     });
   });
@@ -1485,14 +1501,14 @@ function _Browser_getScene() {
       body.offsetWidth,
       elem.scrollWidth,
       elem.offsetWidth,
-      elem.clientWidth
+      elem.clientWidth,
     ),
     height: Math.max(
       body.scrollHeight,
       body.offsetHeight,
       elem.scrollHeight,
       elem.offsetHeight,
-      elem.clientHeight
+      elem.clientHeight,
     ),
   };
 }
@@ -1564,7 +1580,7 @@ function _Browser_reload(skipCache) {
     $gren_lang$core$Basics$never,
     _Scheduler_binding(function (callback) {
       _VirtualDom_doc.location.reload(skipCache);
-    })
+    }),
   );
 }
 
@@ -1580,7 +1596,7 @@ function _Browser_load(url) {
         // Other browsers reload the page, so let's be consistent about that.
         _VirtualDom_doc.location.reload(false);
       }
-    })
+    }),
   );
 }
 
@@ -2076,7 +2092,7 @@ var $gren_lang$core$Basics$composeL$ = function(g, f) {
 var $gren_lang$core$Basics$composeL = F2($gren_lang$core$Basics$composeL$);
 var $gren_lang$core$Basics$not = _Basics_not;
 var $gren_lang$core$String$all$ = function(isGood, str) {
-	return A2($gren_lang$core$String$any, $gren_lang$core$Basics$composeL$($gren_lang$core$Basics$not, isGood), str);
+	return !A2($gren_lang$core$String$any, $gren_lang$core$Basics$composeL$($gren_lang$core$Basics$not, isGood), str);
 };
 var $gren_lang$core$String$all = F2($gren_lang$core$String$all$);
 var $gren_lang$core$Basics$and = _Basics_and;
@@ -2247,16 +2263,23 @@ function _Platform_initialize(
   );
   $gren_lang$core$Result$isOk(result) ||
     _Debug_crash(2 /**/, _Json_errorToString(result.a) /**/);
+
+  _Platform_setupTaskPorts(args ? args["taskPorts"] : undefined);
+
   var managers = {};
   var initPair = init(result.a);
   var model = initPair.model;
   var stepper = stepperBuilder(sendToApp, model);
-  var ports = _Platform_setupEffects(managers, sendToApp);
+  var ports = _Platform_setupEffects(managers, sendToApp, executeCmd);
 
   function sendToApp(msg, viewMetadata) {
     var pair = A2(update, msg, model);
     stepper((model = pair.model), viewMetadata);
     _Platform_enqueueEffects(managers, pair.command, subscriptions(model));
+  }
+
+  function executeCmd(cmd) {
+    _Platform_enqueueEffects(managers, cmd, subscriptions(model));
   }
 
   _Platform_enqueueEffects(managers, initPair.command, subscriptions(model));
@@ -2280,7 +2303,7 @@ function _Platform_registerPreload(url) {
 
 var _Platform_effectManagers = {};
 
-function _Platform_setupEffects(managers, sendToApp) {
+function _Platform_setupEffects(managers, sendToApp, executeCmd) {
   var ports;
 
   // setup all necessary effect managers
@@ -2292,7 +2315,11 @@ function _Platform_setupEffects(managers, sendToApp) {
       ports[key] = manager.a(key, sendToApp);
     }
 
-    managers[key] = _Platform_instantiateManager(manager, sendToApp);
+    managers[key] = _Platform_instantiateManager(
+      manager,
+      sendToApp,
+      executeCmd,
+    );
   }
 
   return ports;
@@ -2308,10 +2335,11 @@ function _Platform_createManager(init, onEffects, onSelfMsg, cmdMap, subMap) {
   };
 }
 
-function _Platform_instantiateManager(info, sendToApp) {
+function _Platform_instantiateManager(info, sendToApp, executeCmd) {
   var router = {
     g: sendToApp,
-    h: undefined,
+    h: executeCmd,
+    i: undefined,
   };
 
   var onEffects = info.c;
@@ -2331,13 +2359,13 @@ function _Platform_instantiateManager(info, sendToApp) {
         }
 
         return cmdMap && subMap
-          ? A4(onEffects, router, value.i, value.j, state)
-          : A3(onEffects, router, cmdMap ? value.i : value.j, state);
+          ? A4(onEffects, router, value.j, value.k, state)
+          : A3(onEffects, router, cmdMap ? value.j : value.k, state);
       }),
     );
   }
 
-  return (router.h = _Scheduler_rawSpawn(
+  return (router.i = _Scheduler_rawSpawn(
     A2(_Scheduler_andThen, loop, info.b),
   ));
 }
@@ -2352,9 +2380,16 @@ var _Platform_sendToApp = F2(function (router, msg) {
 });
 
 var _Platform_sendToSelf = F2(function (router, msg) {
-  return A2(_Scheduler_send, router.h, {
+  return A2(_Scheduler_send, router.i, {
     $: 0,
     a: msg,
+  });
+});
+
+var _Platform_executeCmd = F2(function (router, cmd) {
+  return _Scheduler_binding(function (callback) {
+    router.h(cmd);
+    callback(_Scheduler_succeed({}));
   });
 });
 
@@ -2364,8 +2399,8 @@ function _Platform_leaf(home) {
   return function (value) {
     return {
       $: 1,
-      k: home,
-      l: value,
+      l: home,
+      m: value,
     };
   };
 }
@@ -2373,15 +2408,15 @@ function _Platform_leaf(home) {
 function _Platform_batch(array) {
   return {
     $: 2,
-    m: array,
+    n: array,
   };
 }
 
 var _Platform_map = F2(function (tagger, bag) {
   return {
     $: 3,
-    n: tagger,
-    o: bag,
+    o: tagger,
+    p: bag,
   };
 });
 
@@ -2418,16 +2453,21 @@ var _Platform_effectsActive = false;
 
 function _Platform_enqueueEffects(managers, cmdBag, subBag) {
   _Platform_effectsQueue.push({
-    p: managers,
-    q: cmdBag,
-    r: subBag,
+    q: managers,
+    r: cmdBag,
+    s: subBag,
   });
 
   if (_Platform_effectsActive) return;
 
   _Platform_effectsActive = true;
-  for (var fx; (fx = _Platform_effectsQueue.shift()); ) {
-    _Platform_dispatchEffects(fx.p, fx.q, fx.r);
+  while (_Platform_effectsQueue.length > 0) {
+    const activeEffects = _Platform_effectsQueue;
+    _Platform_effectsQueue = [];
+
+    for (const fx of activeEffects) {
+      _Platform_dispatchEffects(fx.q, fx.r, fx.s);
+    }
   }
   _Platform_effectsActive = false;
 }
@@ -2440,7 +2480,7 @@ function _Platform_dispatchEffects(managers, cmdBag, subBag) {
   for (var home in managers) {
     _Scheduler_rawSend(managers[home], {
       $: "fx",
-      a: effectsDict[home] || { i: [], j: [] },
+      a: effectsDict[home] || { j: [], k: [] },
     });
   }
 }
@@ -2448,22 +2488,22 @@ function _Platform_dispatchEffects(managers, cmdBag, subBag) {
 function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers) {
   switch (bag.$) {
     case 1:
-      var home = bag.k;
-      var effect = _Platform_toEffect(isCmd, home, taggers, bag.l);
+      var home = bag.l;
+      var effect = _Platform_toEffect(isCmd, home, taggers, bag.m);
       effectsDict[home] = _Platform_insert(isCmd, effect, effectsDict[home]);
       return;
 
     case 2:
-      var bags = bag.m;
+      var bags = bag.n;
       for (var idx = 0; idx < bags.length; idx++) {
         _Platform_gatherEffects(isCmd, bags[idx], effectsDict, taggers);
       }
       return;
 
     case 3:
-      _Platform_gatherEffects(isCmd, bag.o, effectsDict, {
-        s: bag.n,
-        t: taggers,
+      _Platform_gatherEffects(isCmd, bag.p, effectsDict, {
+        t: bag.o,
+        u: taggers,
       });
       return;
   }
@@ -2471,8 +2511,8 @@ function _Platform_gatherEffects(isCmd, bag, effectsDict, taggers) {
 
 function _Platform_toEffect(isCmd, home, taggers, value) {
   function applyTaggers(x) {
-    for (var temp = taggers; temp; temp = temp.t) {
-      x = temp.s(x);
+    for (var temp = taggers; temp; temp = temp.u) {
+      x = temp.t(x);
     }
     return x;
   }
@@ -2485,11 +2525,11 @@ function _Platform_toEffect(isCmd, home, taggers, value) {
 }
 
 function _Platform_insert(isCmd, newEffect, effects) {
-  effects = effects || { i: [], j: [] };
+  effects = effects || { j: [], k: [] };
 
   isCmd
-    ? (effects.i = A2($gren_lang$core$Array$pushLast, newEffect, effects.i))
-    : (effects.j = A2($gren_lang$core$Array$pushLast, newEffect, effects.j));
+    ? (effects.j = A2($gren_lang$core$Array$pushLast, newEffect, effects.j))
+    : (effects.k = A2($gren_lang$core$Array$pushLast, newEffect, effects.k));
 
   return effects;
 }
@@ -2500,6 +2540,10 @@ function _Platform_checkPortName(name) {
   if (_Platform_effectManagers[name]) {
     _Debug_crash(3, name);
   }
+
+  if (_Platform_taskPorts[name]) {
+    _Debug_crash(3, name);
+  }
 }
 
 // OUTGOING PORTS
@@ -2508,7 +2552,7 @@ function _Platform_outgoingPort(name, converter) {
   _Platform_checkPortName(name);
   _Platform_effectManagers[name] = {
     e: _Platform_outgoingPortMap,
-    u: converter,
+    v: converter,
     a: _Platform_setupOutgoingPort,
   };
   return _Platform_leaf(name);
@@ -2520,7 +2564,7 @@ var _Platform_outgoingPortMap = F2(function (tagger, value) {
 
 function _Platform_setupOutgoingPort(name) {
   var subs = [];
-  var converter = _Platform_effectManagers[name].u;
+  var converter = _Platform_effectManagers[name].v;
 
   // CREATE MANAGER
 
@@ -2569,7 +2613,7 @@ function _Platform_incomingPort(name, converter) {
   _Platform_checkPortName(name);
   _Platform_effectManagers[name] = {
     f: _Platform_incomingPortMap,
-    u: converter,
+    v: converter,
     a: _Platform_setupIncomingPort,
   };
   return _Platform_leaf(name);
@@ -2583,7 +2627,7 @@ var _Platform_incomingPortMap = F2(function (tagger, finalTagger) {
 
 function _Platform_setupIncomingPort(name, sendToApp) {
   var subs = [];
-  var converter = _Platform_effectManagers[name].u;
+  var converter = _Platform_effectManagers[name].v;
 
   // CREATE MANAGER
 
@@ -2611,6 +2655,95 @@ function _Platform_setupIncomingPort(name, sendToApp) {
   }
 
   return { send: send };
+}
+
+// TASK PORTS
+
+var _Platform_taskPorts = {};
+
+function _Platform_taskPort(name, inputConverter, converter) {
+  _Platform_checkPortName(name);
+  _Platform_taskPorts[name] = {};
+
+  return function (input) {
+    var encodedInput = inputConverter
+      ? _Json_unwrap(inputConverter(input))
+      : null;
+
+    return _Scheduler_binding(function (callback) {
+      var promise;
+      try {
+        promise = _Platform_taskPorts[name](encodedInput);
+      } catch (e) {
+        throw new Error(
+          "Registered code for task-based port named '" + name + "'  crashed.",
+          { cause: e },
+        );
+      }
+
+      if (!(promise instanceof Promise)) {
+        throw new Error(
+          "Handler for task port named '" +
+            name +
+            "' did not return a Promise.",
+        );
+      }
+
+      promise.then(
+        function (value) {
+          var result = A2(_Json_run, converter, _Json_wrap(value));
+
+          $gren_lang$core$Result$isOk(result) || _Debug_crash(4, name, value);
+
+          callback(_Scheduler_succeed(result.a));
+        },
+        function (err) {
+          // If Error, convert to plain object. This is because Error doesn't have enumerable
+          // properties.
+          if (err instanceof Error) {
+            var newErr = {};
+            Object.getOwnPropertyNames(err).forEach(function (key) {
+              newErr[key] = err[key];
+            });
+
+            err = newErr;
+          }
+
+          callback(_Scheduler_fail(_Json_wrap(err)));
+        },
+      );
+    });
+  };
+}
+
+function _Platform_setupTaskPorts(registeredPorts) {
+  if (typeof registeredPorts !== "object") {
+    registeredPorts = {};
+  }
+
+  for (var key in registeredPorts) {
+    if (!(key in _Platform_taskPorts)) {
+      // TODO: proper way to crash program
+      throw new Error(
+        key + " isn't defined as a task-based port in Gren code.",
+      );
+    }
+  }
+
+  for (var key in _Platform_taskPorts) {
+    var handler = registeredPorts[key];
+    if (!handler) {
+      throw new Error("No handler defined for task port named '" + key + "'.");
+    }
+
+    if (!(handler instanceof Function)) {
+      throw new Error(
+        "Handler for task port named '" + key + "' is not a function.",
+      );
+    }
+
+    _Platform_taskPorts[key] = handler;
+  }
 }
 
 // EXPORT GREN MODULES
@@ -2716,6 +2849,47 @@ function _Scheduler_receive(callback) {
   };
 }
 
+function _Scheduler_concurrent(tasks) {
+  if (tasks.length === 0) return _Scheduler_succeed([]);
+
+  return _Scheduler_binding(function (callback) {
+    let count = 0;
+    let results = new Array(tasks.length);
+    let procs;
+
+    function killAll() {
+      procs.forEach(_Scheduler_rawKill);
+    }
+
+    function onError(e) {
+      killAll();
+      callback(_Scheduler_fail(e));
+    }
+
+    procs = tasks.map((task, i) => {
+      function onSuccess(res) {
+        results[i] = res;
+        count++;
+        if (count === tasks.length) {
+          callback(_Scheduler_succeed(results));
+        }
+      }
+      const success = A2(_Scheduler_andThen, onSuccess, task);
+      const handled = A2(_Scheduler_onError, onError, success);
+      return _Scheduler_rawSpawn(handled);
+    });
+
+    return killAll;
+  });
+}
+
+var _Scheduler_map2 = F3(function (callback, taskA, taskB) {
+  function combine([resA, resB]) {
+    return _Scheduler_succeed(A2(callback, resA, resB));
+  }
+  return A2(_Scheduler_andThen, combine, _Scheduler_concurrent([taskA, taskB]));
+});
+
 // PROCESSES
 
 var _Scheduler_guid = 0;
@@ -2754,15 +2928,19 @@ var _Scheduler_send = F2(function (proc, msg) {
 
 function _Scheduler_kill(proc) {
   return _Scheduler_binding(function (callback) {
-    var task = proc.f;
-    if (task && task.$ === 2 && task.c) {
-      task.c();
-    }
-
-    proc.f = null;
+    _Scheduler_rawKill(proc);
 
     callback(_Scheduler_succeed({}));
   });
+}
+
+function _Scheduler_rawKill(proc) {
+  var task = proc.f;
+  if (task && task.$ === 2 && task.c) {
+    task.c();
+  }
+
+  proc.f = null;
 }
 
 /* STEP PROCESSES
@@ -2786,8 +2964,14 @@ function _Scheduler_enqueue(proc) {
     return;
   }
   _Scheduler_working = true;
-  while ((proc = _Scheduler_queue.shift())) {
-    _Scheduler_step(proc);
+  // Make sure tasks created during _step are run
+  while (_Scheduler_queue.length > 0) {
+    const activeProcs = _Scheduler_queue;
+    _Scheduler_queue = [];
+
+    for (const proc of activeProcs) {
+      _Scheduler_step(proc);
+    }
   }
   _Scheduler_working = false;
 }
@@ -2838,10 +3022,7 @@ function _VirtualDom_appendChild(parent, child) {
   parent.appendChild(child);
 }
 
-var _VirtualDom_init = F2(function (
-  virtualNode,
-  args
-) {
+var _VirtualDom_init = F2(function (virtualNode, args) {
   // NOTE: this function needs _Platform_export available to work
 
   /**_UNUSED/
@@ -2853,7 +3034,7 @@ var _VirtualDom_init = F2(function (
 
   node.parentNode.replaceChild(
     _VirtualDom_render(virtualNode, function () {}),
-    node
+    node,
   );
 
   return {};
@@ -2871,7 +3052,7 @@ function _VirtualDom_text(string) {
 // NODE
 
 var _VirtualDom_nodeNS = F2(function (namespace, tag) {
-  return F2(function(factList, kids) {
+  return F2(function (factList, kids) {
     for (var descendantsCount = 0, i = 0; i < kids.length; i++) {
       var kid = kids[i];
       descendantsCount += kid.b || 0;
@@ -3052,7 +3233,9 @@ function _VirtualDom_noOnOrFormAction(key) {
 }
 
 function _VirtualDom_noInnerHtmlOrFormAction(key) {
-  return key == "innerHTML" || key == "formAction" ? "data-" + key : key;
+  return key == "innerHTML" || key == "outerHTML" || key == "formAction"
+    ? "data-" + key
+    : key;
 }
 
 function _VirtualDom_noJavaScriptUri_UNUSED(value) {
@@ -3101,7 +3284,7 @@ function _VirtualDom_mapHandler(func, handler) {
         $gren_lang$core$Json$Decode$map2,
         _VirtualDom_mapMayStopPropagation,
         $gren_lang$core$Json$Decode$succeed(func),
-        handler.a
+        handler.a,
       );
       break;
     case 2:
@@ -3109,7 +3292,7 @@ function _VirtualDom_mapHandler(func, handler) {
         $gren_lang$core$Json$Decode$map2,
         _VirtualDom_mapMayPreventDefault,
         $gren_lang$core$Json$Decode$succeed(func),
-        handler.a
+        handler.a,
       );
       break;
     case 3:
@@ -3117,7 +3300,7 @@ function _VirtualDom_mapHandler(func, handler) {
         $gren_lang$core$Json$Decode$map2,
         _VirtualDom_mapEventRecord,
         $gren_lang$core$Json$Decode$succeed(func),
-        handler.a
+        handler.a,
       );
       break;
   }
@@ -3190,7 +3373,7 @@ function _VirtualDom_render(vNode, eventNode) {
   if (tag === 5) {
     return _VirtualDom_render(
       vNode.k || (vNode.k = vNode.n()),
-      eventNode
+      eventNode,
     );
   }
 
@@ -3239,8 +3422,8 @@ function _VirtualDom_render(vNode, eventNode) {
       domNode,
       _VirtualDom_render(
         tag === 1 ? kids[i] : kids[i].node,
-        eventNode
-      )
+        eventNode,
+      ),
     );
   }
 
@@ -3256,13 +3439,14 @@ function _VirtualDom_applyFacts(domNode, eventNode, facts) {
     key === "a1"
       ? _VirtualDom_applyStyles(domNode, value)
       : key === "a0"
-      ? _VirtualDom_applyEvents(domNode, eventNode, value)
-      : key === "a3"
-      ? _VirtualDom_applyAttrs(domNode, value)
-      : key === "a4"
-      ? _VirtualDom_applyAttrsNS(domNode, value)
-      : ((key !== "value" && key !== "checked") || domNode[key] !== value) &&
-        (domNode[key] = value);
+        ? _VirtualDom_applyEvents(domNode, eventNode, value)
+        : key === "a3"
+          ? _VirtualDom_applyAttrs(domNode, value)
+          : key === "a4"
+            ? _VirtualDom_applyAttrsNS(domNode, value)
+            : ((key !== "value" && key !== "checked") ||
+                domNode[key] !== value) &&
+              (domNode[key] = value);
   }
 }
 
@@ -3331,7 +3515,7 @@ function _VirtualDom_applyEvents(domNode, eventNode, events) {
       oldCallback,
       _VirtualDom_passiveSupported && {
         passive: $gren_lang$browser$VirtualDom$toHandlerInt(newHandler) < 2,
-      }
+      },
     );
     allCallbacks[key] = oldCallback;
   }
@@ -3349,7 +3533,7 @@ try {
       get: function () {
         _VirtualDom_passiveSupported = true;
       },
-    })
+    }),
   );
 } catch (e) {}
 
@@ -3609,10 +3793,10 @@ function _VirtualDom_diffFacts(x, y, category) {
           ? ""
           : null
         : category === "a1"
-        ? ""
-        : category === "a0" || category === "a3"
-        ? undefined
-        : { f: x[xKey].f, p: undefined };
+          ? ""
+          : category === "a0" || category === "a3"
+            ? undefined
+            : { f: x[xKey].f, p: undefined };
 
       continue;
     }
@@ -3724,13 +3908,13 @@ function _VirtualDom_diffKeyedKids(xParent, yParent, patches, rootIndex) {
 
     if (xNext) {
       var xNextKey = xNext.key;
-      var xNextNode = xNext.key;
+      var xNextNode = xNext.node;
       oldMatch = yKey === xNextKey;
     }
 
     if (yNext) {
       var yNextKey = yNext.key;
-      var yNextNode = yNext.key;
+      var yNextNode = yNext.node;
       newMatch = xKey === yNextKey;
     }
 
@@ -3744,7 +3928,7 @@ function _VirtualDom_diffKeyedKids(xParent, yParent, patches, rootIndex) {
         xKey,
         yNode,
         yIndex,
-        inserts
+        inserts,
       );
       index += xNode.b || 0;
 
@@ -3766,7 +3950,7 @@ function _VirtualDom_diffKeyedKids(xParent, yParent, patches, rootIndex) {
         yKey,
         yNode,
         yIndex,
-        inserts
+        inserts,
       );
       _VirtualDom_diffHelp(xNode, yNextNode, localPatches, index);
       index += xNode.b || 0;
@@ -3801,7 +3985,7 @@ function _VirtualDom_diffKeyedKids(xParent, yParent, patches, rootIndex) {
         yKey,
         yNode,
         yIndex,
-        inserts
+        inserts,
       );
       index += xNode.b || 0;
 
@@ -3837,7 +4021,7 @@ function _VirtualDom_diffKeyedKids(xParent, yParent, patches, rootIndex) {
       y.key,
       y.node,
       undefined,
-      endInserts
+      endInserts,
     );
     yIndex++;
   }
@@ -3861,7 +4045,7 @@ function _VirtualDom_insertNode(
   key,
   vnode,
   yIndex,
-  inserts
+  inserts,
 ) {
   var entry = changes[key];
 
@@ -3903,7 +4087,7 @@ function _VirtualDom_insertNode(
     key + _VirtualDom_POSTFIX,
     vnode,
     yIndex,
-    inserts
+    inserts,
   );
 }
 
@@ -3916,7 +4100,7 @@ function _VirtualDom_removeNode(changes, localPatches, key, vnode, index) {
       localPatches,
       9,
       index,
-      undefined
+      undefined,
     );
 
     changes[key] = {
@@ -3949,7 +4133,7 @@ function _VirtualDom_removeNode(changes, localPatches, key, vnode, index) {
     localPatches,
     key + _VirtualDom_POSTFIX,
     vnode,
-    index
+    index,
   );
 }
 
@@ -3968,7 +4152,7 @@ function _VirtualDom_addDomNodes(domNode, vNode, patches, eventNode) {
     0,
     0,
     vNode.b,
-    eventNode
+    eventNode,
   );
 }
 
@@ -3980,7 +4164,7 @@ function _VirtualDom_addDomNodesHelp(
   i,
   low,
   high,
-  eventNode
+  eventNode,
 ) {
   var patch = patches[i];
   var index = patch.s;
@@ -4003,7 +4187,7 @@ function _VirtualDom_addDomNodesHelp(
           0,
           low,
           high,
-          eventNode
+          eventNode,
         );
       }
     } else if (patchType === 9) {
@@ -4022,7 +4206,7 @@ function _VirtualDom_addDomNodesHelp(
             0,
             low,
             high,
-            eventNode
+            eventNode,
           );
         }
       }
@@ -4054,7 +4238,7 @@ function _VirtualDom_addDomNodesHelp(
       i,
       low + 1,
       high,
-      domNode.gren_event_node_ref
+      domNode.gren_event_node_ref,
     );
   }
 
@@ -4074,7 +4258,7 @@ function _VirtualDom_addDomNodesHelp(
         i,
         low,
         nextLow,
-        eventNode
+        eventNode,
       );
       if (!(patch = patches[i]) || (index = patch.s) > high) {
         return i;
@@ -4091,7 +4275,7 @@ function _VirtualDom_applyPatches(
   rootDomNode,
   oldVirtualNode,
   patches,
-  eventNode
+  eventNode,
 ) {
   if (patches.length === 0) {
     return rootDomNode;
@@ -4119,7 +4303,7 @@ function _VirtualDom_applyPatch(domNode, patch) {
       return _VirtualDom_applyPatchRedraw(
         domNode,
         patch.t,
-        patch.v
+        patch.v,
       );
 
     case 4:
@@ -4159,7 +4343,7 @@ function _VirtualDom_applyPatch(domNode, patch) {
       for (; i < kids.length; i++) {
         domNode.insertBefore(
           _VirtualDom_render(kids[i], patch.v),
-          theEnd
+          theEnd,
         );
       }
       return domNode;
@@ -4208,7 +4392,7 @@ function _VirtualDom_applyPatchReorder(domNode, patch) {
   // remove end inserts
   var frag = _VirtualDom_applyPatchReorderEndInsertsHelp(
     data.z,
-    patch
+    patch,
   );
 
   // removals
@@ -4247,7 +4431,7 @@ function _VirtualDom_applyPatchReorderEndInsertsHelp(endInserts, patch) {
       frag,
       entry.c === 2
         ? entry.t
-        : _VirtualDom_render(entry.A, patch.v)
+        : _VirtualDom_render(entry.A, patch.v),
     );
   }
   return frag;
@@ -4455,29 +4639,27 @@ var $gren_lang$core$Task$map$ = function(func, taskA) {
 };
 var $gren_lang$core$Task$map = F2($gren_lang$core$Task$map$);
 var $gren_lang$core$Array$foldr = _Array_foldr;
-var $gren_lang$core$Task$map2$ = function(func, taskA, taskB) {
-	return A2($gren_lang$core$Task$andThen, function(a) {
-			return A2($gren_lang$core$Task$andThen, function(b) {
-					return $gren_lang$core$Task$succeed(A2(func, a, b));
-				}, taskB);
-		}, taskA);
-};
-var $gren_lang$core$Task$map2 = F3($gren_lang$core$Task$map2$);
 var $gren_lang$core$Array$pushFirst$ = function(value, array) {
 	return A4(_Array_splice1, 0, 0, value, array);
 };
 var $gren_lang$core$Array$pushFirst = F2($gren_lang$core$Array$pushFirst$);
-var $gren_lang$core$Task$sequence = function(tasks) {
-	return A3($gren_lang$core$Array$foldr, $gren_lang$core$Task$map2($gren_lang$core$Array$pushFirst), $gren_lang$core$Task$succeed([  ]), tasks);
-};
+var $gren_lang$core$Task$sequence = A2($gren_lang$core$Array$foldr, F2(function(task, combined) {
+			return A2($gren_lang$core$Task$andThen, function(x) {
+					return $gren_lang$core$Task$map$($gren_lang$core$Array$pushFirst(x), combined);
+				}, task);
+		}), $gren_lang$core$Task$succeed([  ]));
 var $gren_lang$core$Platform$sendToApp = _Platform_sendToApp;
 var $gren_lang$core$Task$spawnCmd$ = function(router, cmd) {
-	if (cmd.$ === 'Perform') {
-		var task = cmd.a;
-		return _Scheduler_spawn(A2($gren_lang$core$Task$andThen, $gren_lang$core$Platform$sendToApp(router), task));
-	} else {
-		var task = cmd.a;
-		return _Scheduler_spawn(task);
+	switch (cmd.$) {
+		case 'Perform':
+			var task = cmd.a;
+			return _Scheduler_spawn(A2($gren_lang$core$Task$andThen, $gren_lang$core$Platform$sendToApp(router), task));
+		case 'ExecuteCmd':
+			var task = cmd.a;
+			return _Scheduler_spawn(A2($gren_lang$core$Task$andThen, _Platform_executeCmd(router), task));
+		default:
+			var task = cmd.a;
+			return _Scheduler_spawn(task);
 	}
 };
 var $gren_lang$core$Task$spawnCmd = F2($gren_lang$core$Task$spawnCmd$);
@@ -4494,13 +4676,21 @@ var $gren_lang$core$Task$onSelfMsg = F3($gren_lang$core$Task$onSelfMsg$);
 var $gren_lang$core$Task$Execute = function (a) {
 	return { $: 'Execute', a: a };
 };
+var $gren_lang$core$Task$ExecuteCmd = function (a) {
+	return { $: 'ExecuteCmd', a: a };
+};
+var $gren_lang$core$Platform$Cmd$map = _Platform_map;
 var $gren_lang$core$Task$cmdMap$ = function(tagger, cmd) {
-	if (cmd.$ === 'Perform') {
-		var task = cmd.a;
-		return $gren_lang$core$Task$Perform($gren_lang$core$Task$map$(tagger, task));
-	} else {
-		var task = cmd.a;
-		return $gren_lang$core$Task$Execute(task);
+	switch (cmd.$) {
+		case 'Perform':
+			var task = cmd.a;
+			return $gren_lang$core$Task$Perform($gren_lang$core$Task$map$(tagger, task));
+		case 'ExecuteCmd':
+			var task = cmd.a;
+			return $gren_lang$core$Task$ExecuteCmd($gren_lang$core$Task$map$($gren_lang$core$Platform$Cmd$map(tagger), task));
+		default:
+			var task = cmd.a;
+			return $gren_lang$core$Task$Execute(task);
 	}
 };
 var $gren_lang$core$Task$cmdMap = F2($gren_lang$core$Task$cmdMap$);

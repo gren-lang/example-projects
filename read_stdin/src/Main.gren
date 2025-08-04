@@ -16,7 +16,6 @@ init : Environment -> Init.Task (Cmd a)
 init env =
     Stream.writeStringAsBytes "What is your name?\nName: " env.stdout
         |> Task.andThen (\_ -> Stream.readBytesAsString env.stdin)
-        |> Task.map (Maybe.withDefault "") -- ignoring if we can't convert stdin bytes to string
         |> Task.andThen (\name -> Stream.writeStringAsBytes ("Hi, " ++ name) env.stdout)
         |> Task.onError (\_ -> Task.succeed env.stdout) -- ignoring all stream-related errors
         |> Node.endSimpleProgram

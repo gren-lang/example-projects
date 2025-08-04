@@ -4,14 +4,14 @@
     "source-directories": [
         "src"
     ],
-    "gren-version": "0.5.0",
+    "gren-version": "0.6.1",
     "dependencies": {
         "direct": {
-            "gren-lang/browser": "5.0.0",
-            "gren-lang/core": "6.0.0"
+            "gren-lang/browser": "6.0.0",
+            "gren-lang/core": "7.0.0"
         },
         "indirect": {
-            "gren-lang/url": "5.0.0"
+            "gren-lang/url": "6.0.0"
         }
     }
 }
